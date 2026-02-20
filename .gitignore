@@ -29,3 +29,6 @@ Thumbs.db
 # Keep these source files
 !resume.md
 !resume.txt
+
+# Job description file (changes per application, don't commit)
+jd.txt

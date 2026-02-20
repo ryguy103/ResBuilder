@@ -12,7 +12,7 @@ DATE_PREFIX := $(shell date +%Y%m%d)
 # MARKDOWN WORKFLOW (No LaTeX Required)
 # ============================================================================
 
-.PHONY: help view copy save md clean new list done back status tips
+.PHONY: help view copy save md clean new list done back status tips tailor jd
 
 help: ## Show this help
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -21,6 +21,8 @@ help: ## Show this help
 	@echo ""
 	@echo "JOB APPLICATION WORKFLOW:"
 	@echo "  make new company=X role=Y   Start new application branch"
+	@echo "  make jd                     Open jd.txt to paste job description"
+	@echo "  make tailor                 Generate AI prompt to tailor resume"
 	@echo "  make list                   List all application branches"
 	@echo "  make status                 Show current branch & changes"
 	@echo "  make done                   Commit & push current branch"
@@ -169,6 +171,47 @@ tips: ## Show tailoring tips and strength mapping
 	@echo "  • Cost savings: \$$250K annually"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
+
+jd: ## Open jd.txt to paste the job description
+	@open jd.txt 2>/dev/null || code jd.txt 2>/dev/null || vim jd.txt
+
+tailor: ## Generate AI prompt to tailor resume (paste jd.txt first)
+	@if grep -q "PASTE THE JOB DESCRIPTION HERE" jd.txt 2>/dev/null; then \
+		echo "Error: Paste the job description into jd.txt first"; \
+		echo "Run: make jd"; \
+		exit 1; \
+	fi
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "AI TAILORING PROMPT"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "Copy everything below this line and paste into Claude/ChatGPT:"
+	@echo ""
+	@echo "================================================================"
+	@echo ""
+	@echo "Help me tailor my resume for this job. Follow these rules:"
+	@echo ""
+	@echo "1. KEYWORD ALIGNMENT: Use terms from the JD where I have genuine experience"
+	@echo "2. REORDER BULLETS: Put the most relevant accomplishments first"
+	@echo "3. PRESERVE METRICS: Always keep \$$250K savings and 90→3 min response time"
+	@echo "4. NO FABRICATION: Only use keywords where I have real experience"
+	@echo "5. ACTIVE VOICE: No 'exposure to' or 'familiar with'"
+	@echo ""
+	@echo "=== MY CURRENT RESUME ==="
+	@echo ""
+	@cat resume.md
+	@echo ""
+	@echo "=== JOB DESCRIPTION ==="
+	@echo ""
+	@cat jd.txt
+	@echo ""
+	@echo "=== WHAT I NEED ==="
+	@echo ""
+	@echo "1. Analysis table: JD Requirement | My Match | Gap"
+	@echo "2. Tailored resume.md (reordered/reframed bullets)"
+	@echo "3. Tailored resume.txt (plain text for ATS)"
+	@echo ""
+	@echo "================================================================"
 
 # ============================================================================
 # LATEX WORKFLOW (Optional - requires: brew install --cask mactex-no-gui)
