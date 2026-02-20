@@ -1,0 +1,82 @@
+# Ryan Laxson
+
+**Longmont, CO** | (503) 381-5026 | rylaxson@pm.me | [linkedin.com/in/rylaxson](https://www.linkedin.com/in/rylaxson/)
+
+---
+
+Support Operations and AI/Automation specialist with 5+ years driving efficiency at scale. Built AI-powered internal tooling, automated high-volume workflows, and partnered cross-functionally to improve both customer experience and support team productivity.
+
+---
+
+## Professional Experience
+
+### Zapier
+**Incident Management & Support Operations**
+
+#### Incident Program Owner / Automation & Tooling Lead
+*Nov 2022 – Present*
+
+- Built and operated **IncidentBot**, a custom Slack app integrating Zendesk, incident.io, Atlassian Statuspage, PagerDuty, and OpenAI APIs, automating incident coordination, enabling AI-assisted customer messaging, and supporting one-click Zendesk problem ticket creation for incident tracking; reduced support incident response time from **90 minutes to 3 minutes** and improved cross-functional stakeholder visibility
+
+- Built automated detection and auto-response workflows for GDPR/data access requests and third-party app–generated tickets, reducing manual triage and saving approximately **$250K annually** in support handling costs
+
+- Implemented and operationalized **incident.io**, enabling adoption of built-in AI capabilities and standardizing incident workflows across Support and Engineering
+
+- Developed AI-powered messaging agents for customer-facing Statuspage updates, improving timeliness and consistency of external communications during incidents
+
+- Evaluated AI-assisted support tooling through experimentation and feedback analysis, measuring reliability and real-world agent impact; supplemented platform gaps with targeted in-house automation
+
+- Partnered closely with Support, Engineering, Product, and GTM to deliver scalable improvements to support and incident workflows
+
+- Built dashboards in Databricks, Looker, and Grafana to surface incident and support trends and guide prioritization
+
+- Authored and maintained playbooks, governance models, and training programs supporting incident and support operations
+
+#### Senior Technical Support Specialist
+*2019 – Nov 2022*
+
+- Resolved complex customer issues across Zapier's automation platform, working directly with developers and technical customers
+
+- Triaged and escalated high-impact incidents from Support to Engineering, improving signal quality and reducing time to coordinated response
+
+- Partnered with Support leadership to refine ticket routing, workflows, and escalation paths within Zendesk
+
+- Identified recurring support friction and contributed to automation opportunities that reduced manual agent workload
+
+- Supported high-volume ticket queues while maintaining strong customer experience standards
+
+---
+
+## Technical Skills
+
+| Category | Technologies |
+|----------|--------------|
+| **Support & Ops** | Zendesk, incident.io, Atlassian Statuspage, PagerDuty, Slack |
+| **Automation** | Python, JavaScript, webhooks, Slack apps, APIs |
+| **Data & BI** | SQL, Databricks, Looker, Grafana |
+| **AI/LLM** | OpenAI APIs, prompt engineering, AI-assisted messaging, chatbot development |
+
+---
+
+## Selected Projects
+
+### LLM Prompt Evaluation Framework
+*Personal Project*
+
+- Built an experimentation framework to test prompts across multiple LLM providers, evaluating outputs against defined success criteria
+- Implemented automated scoring and comparison metrics to support rapid iteration on prompt design
+- Used data-driven analysis to identify reliability gaps and systematically improve consistency of AI-generated outputs
+
+### Self-Hosted Game Streaming Platform
+*Homelab Project*
+
+- Designed and deployed a self-hosted server environment to run and stream classic PC games playable via web browser
+- Built containerized services and automation workflows to simplify game hosting and remote media access
+- Leveraged AI-assisted tooling to accelerate configuration, troubleshooting, and workflow automation across the stack
+
+---
+
+## Education
+
+**B.A. in Communications and Media Studies**  
+Boise State University

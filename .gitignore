@@ -1,0 +1,31 @@
+# Output directory
+output/
+
+# LaTeX intermediate files
+*.aux
+*.log
+*.out
+*.toc
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+
+# Generated PDFs (we regenerate from source)
+*.pdf
+
+# Emacs backup files
+*~
+\#*\#
+.#*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Keep these source files
+!resume.md
+!resume.txt

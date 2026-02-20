@@ -1,0 +1,273 @@
+% ============================================================================
+% RESUME - Ryan Laxson
+% ============================================================================
+% This is your master resume. Keep everything here, then trim for specific
+% applications on feature branches (e.g., apply/company-name-2026-01)
+%
+% Build with: make resume
+% Or directly: latexmk -pdf resume.tex
+% ============================================================================
+
+\documentclass[11pt,letterpaper,sans]{moderncv}
+% Options:
+%   font size: '10pt', '11pt', '12pt'
+%   paper: 'a4paper', 'letterpaper', 'a5paper', 'legalpaper', 'executivepaper'
+%   font family: 'sans', 'roman'
+
+% ----------------------------------------------------------------------------
+% STYLE CONFIGURATION
+% ----------------------------------------------------------------------------
+% Style options: 'casual', 'classic', 'banking', 'oldstyle', 'fancy', 'contemporary'
+% The 'contemporary' style optionally takes 'qr' (default) or 'noqr' options
+\moderncvstyle{classic}
+
+% Color options: 'black', 'blue', 'burgundy', 'green', 'grey', 'orange', 'purple', 'red'
+% For 'contemporary' style, use 'cerulean'
+\moderncvcolor{blue}
+
+% Name in small caps (serif for true small caps support)
+\renewcommand*{\namefont}{\fontsize{34}{36}\rmfamily\mdseries\scshape}
+
+% ----------------------------------------------------------------------------
+% FONT LOADING (handles different TeX engines)
+% ----------------------------------------------------------------------------
+\ifxetexorluatex
+  \usepackage{fontspec}
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Ligatures=TeX}
+  \setmainfont{Latin Modern Roman}
+  \setsansfont{Latin Modern Sans}
+  \setmonofont{Latin Modern Mono}
+  \setmathfont{Latin Modern Math}
+\else
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage{lmodern}
+\fi
+
+% Document language
+\usepackage[english]{babel}
+
+% ----------------------------------------------------------------------------
+% PAGE LAYOUT
+% ----------------------------------------------------------------------------
+% Page margins
+\usepackage[scale=0.85]{geometry}
+
+% Reduce spacing in itemize (more compact)
+\usepackage{enumitem}
+\setlist[itemize]{nosep, leftmargin=*}
+
+% Make hyperlinks visible (uses moderncv's blue color)
+\AtBeginDocument{%
+  \let\oldhref\href
+  \renewcommand{\href}[2]{\oldhref{#1}{\textcolor{color1}{#2}}}%
+}
+
+% ----------------------------------------------------------------------------
+% PERSONAL INFORMATION
+% ----------------------------------------------------------------------------
+\name{Ryan}{Laxson}
+\title{Support Operations \& AI/Automation Specialist}
+
+% Contact info - conditionally included based on public/private version
+% (public version hides phone and specific location)
+\ifdefined\publicversion
+  % PUBLIC: general location only, no phone
+  \address{United States}{}{}
+\else
+  % PRIVATE: full contact details
+  \address{Longmont, CO}{}{}
+  \phone[mobile]{(503) 381-5026}
+\fi
+
+% Always included
+\email{rylaxson@pm.me}
+% \homepage{yourwebsite.com}
+
+% Social links
+\social[linkedin]{rylaxson}
+% \social[github]{username}
+% \social[gitlab]{username}
+% \social[mastodon]{mastodon.social/@username}
+% \social[twitter]{username}
+
+% Optional extras
+% \born{January 1, 1990}
+% \photo[64pt][2pt]{photo.jpg}  % height, frame thickness, filename
+% \quote{Your professional tagline or motto}
+% \extrainfo{Additional info}
+
+% ============================================================================
+% DOCUMENT CONTENT
+% ============================================================================
+\begin{document}
+
+\makecvtitle
+
+% ----------------------------------------------------------------------------
+% SUMMARY
+% ----------------------------------------------------------------------------
+% Adapt this summary for each role. Choose from variants below or customize.
+%
+% DEFAULT - Support Operations / AI Automation:
+\section{Summary}
+Support Operations and AI/Automation specialist with 5+ years driving efficiency
+at scale. Built AI-powered internal tooling, automated high-volume workflows, and
+partnered cross-functionally to improve both customer experience and support team
+productivity.
+
+% ALTERNATIVE - Tooling / Engineering Focus:
+% Support Operations and AI/Automation specialist with 5+ years building internal
+% tools that bridge Support and Engineering. Designed AI-powered Slack apps,
+% automated incident workflows, and built dashboards driving data-informed prioritization.
+
+% ALTERNATIVE - Customer Experience Focus:
+% Customer operations specialist with 5+ years improving support efficiency and
+% customer communications at scale. Built AI-assisted messaging tools, automated
+% high-volume workflows, and partnered cross-functionally to deliver measurable
+% customer experience improvements.
+
+% ----------------------------------------------------------------------------
+% EXPERIENCE
+% ----------------------------------------------------------------------------
+\section{Experience}
+
+% Format: \cventry{dates}{title}{company}{location}{grade}{description}
+% The description can include itemize for bullet points
+
+\cventry{Nov 2022--Present}{Incident Program Owner / Automation \& Tooling Lead}{Zapier}{Remote}{}{
+\begin{itemize}
+\item Built and operated \textbf{IncidentBot}, a custom Slack app integrating Zendesk,
+      incident.io, Atlassian Statuspage, PagerDuty, and OpenAI APIs; automated incident
+      coordination, enabled AI-assisted customer messaging, and supported one-click
+      Zendesk problem ticket creation; reduced support incident response time from
+      \textbf{90 minutes to 3 minutes}
+\item Built automated detection and auto-response workflows for GDPR/data access
+      requests and third-party app--generated tickets, reducing manual triage and
+      saving approximately \textbf{\$250K annually} in support handling costs
+\item Implemented and operationalized \textbf{incident.io}, enabling adoption of
+      built-in AI capabilities and standardizing incident workflows across Support
+      and Engineering
+\item Developed AI-powered messaging agents for customer-facing Statuspage updates,
+      improving timeliness and consistency of external communications during incidents
+\item Evaluated AI-assisted support tooling through experimentation and feedback
+      analysis, measuring reliability and real-world agent impact; supplemented
+      platform gaps with targeted in-house automation
+\item Partnered closely with Support, Engineering, Product, and GTM to deliver
+      scalable improvements to support and incident workflows
+\item Built dashboards in Databricks, Looker, and Grafana to surface incident and
+      support trends and guide prioritization
+\item Authored and maintained playbooks, governance models, and training programs
+      supporting incident and support operations
+\end{itemize}}
+
+\cventry{2019--Nov 2022}{Senior Technical Support Specialist}{Zapier}{Remote}{}{
+\begin{itemize}
+\item Resolved complex customer issues across Zapier's automation platform, working
+      directly with developers and technical customers
+\item Triaged and escalated high-impact incidents from Support to Engineering,
+      improving signal quality and reducing time to coordinated response
+\item Partnered with Support leadership to refine ticket routing, workflows, and
+      escalation paths within Zendesk
+\item Identified recurring support friction and contributed to automation opportunities
+      that reduced manual agent workload
+\item Supported high-volume ticket queues while maintaining strong customer experience
+      standards
+\end{itemize}}
+
+% ----------------------------------------------------------------------------
+% SKILLS
+% ----------------------------------------------------------------------------
+\section{Skills}
+
+% Simple format: \cvitem{category}{skills}
+\cvitem{Support \& Ops}{Zendesk, incident.io, Atlassian Statuspage, PagerDuty, Slack}
+\cvitem{Automation}{Python, JavaScript, webhooks, Slack apps, APIs}
+\cvitem{Data \& BI}{SQL, Databricks, Looker, Grafana}
+\cvitem{AI/LLMs}{OpenAI APIs, prompt engineering, AI-assisted messaging, chatbot development}
+
+% ----------------------------------------------------------------------------
+% PROJECTS
+% ----------------------------------------------------------------------------
+\section{Projects}
+
+\cventry{}{LLM Prompt Evaluation Framework}{Personal Project}{}{}{
+\begin{itemize}
+\item Built an experimentation framework to test prompts across multiple LLM providers,
+      evaluating outputs against defined success criteria
+\item Implemented automated scoring and comparison metrics to support rapid iteration
+      on prompt design
+\item Used data-driven analysis to identify reliability gaps and systematically improve
+      consistency of AI-generated outputs
+\end{itemize}}
+
+\cventry{}{Self-Hosted Game Streaming Platform}{Homelab Project}{}{}{
+\begin{itemize}
+\item Designed and deployed a self-hosted server environment to run and stream classic
+      PC games playable via web browser
+\item Built containerized services and automation workflows to simplify game hosting
+      and remote media access
+\item Leveraged AI-assisted tooling to accelerate configuration, troubleshooting, and
+      workflow automation across the stack
+\end{itemize}}
+
+% ----------------------------------------------------------------------------
+% EDUCATION
+% ----------------------------------------------------------------------------
+\section{Education}
+
+\cventry{}{B.A. in Communications and Media Studies}{Boise State University}{}{}{}
+
+% ============================================================================
+% OPTIONAL SECTIONS - Uncomment as needed
+% ============================================================================
+
+% ----------------------------------------------------------------------------
+% CERTIFICATIONS (optional - uncomment if needed)
+% ----------------------------------------------------------------------------
+% \section{Certifications}
+% \cvlistitem{Certification Name -- Issuing Organization (Year)}
+% \cvlistitem{Another Certification -- Organization (Year)}
+
+% ----------------------------------------------------------------------------
+% SKILL MATRIX (alternative to simple skills section)
+% ----------------------------------------------------------------------------
+% \section{Skill Matrix}
+% \cvskilllegend*[1em]{}  % Add legend
+% \cvskillhead  % Add header row
+% Format: \cvskillentry[*][padding]{category}{level 0-5}{skill}{years}{comment}
+% \cvskillentry*{Languages:}{4}{Python}{5}{Primary language}
+% \cvskillentry{}{3}{JavaScript}{3}{Frontend and Node.js}
+% \cvskillentry*{Tools:}{4}{Git}{8}{Daily driver}
+% \cvskillentry{}{3}{Docker}{4}{Container orchestration}
+
+% ----------------------------------------------------------------------------
+% PUBLICATIONS
+% ----------------------------------------------------------------------------
+% \section{Publications}
+% \cvitem{2023}{Author, A., \& Author, B. (2023). ``Paper Title.'' \textit{Journal Name}, 1(2), 3-4.}
+
+% ----------------------------------------------------------------------------
+% VOLUNTEER WORK
+% ----------------------------------------------------------------------------
+% \section{Volunteer Work}
+% \cventry{2022 -- Present}{Volunteer Role}{Organization}{}{}{Description of contribution}
+
+% ----------------------------------------------------------------------------
+% AWARDS
+% ----------------------------------------------------------------------------
+% \section{Awards}
+% \cvlistitem{Award Name -- Organization (Year)}
+
+% ----------------------------------------------------------------------------
+% REFERENCES
+% ----------------------------------------------------------------------------
+% \section{References}
+% \begin{cvcolumns}
+%   \cvcolumn{Professional}{\begin{itemize}\item Person 1\item Person 2\end{itemize}}
+%   \cvcolumn{Academic}{\begin{itemize}\item Person 3\item Person 4\end{itemize}}
+% \end{cvcolumns}
+% Or simply: Available upon request
+
+\end{document}

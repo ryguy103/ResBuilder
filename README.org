@@ -1,0 +1,296 @@
+#+TITLE: laxjob - Ryan Laxson's Resume & Cover Letter System
+#+AUTHOR: Ryan Laxson
+#+OPTIONS: toc:2
+
+* Overview
+
+A plain-text, git-versioned system for managing resumes and job applications.
+
+Philosophy: /Plain text, version controlled, future-proof./
+
+* Quick Start
+
+** Prerequisites
+
+- =make= (standard on macOS/Linux)
+- LaTeX is *optional* — only needed for PDF generation
+
+** Markdown Workflow (No LaTeX Required)
+
+#+begin_src shell
+make help       # Show all available commands
+make view       # Display plain text resume in terminal
+make copy       # Copy plain text resume to clipboard
+make save       # Save dated copies to output/ folder
+make md         # Open resume.md in your editor
+make clean      # Remove generated files
+#+end_src
+
+This is the recommended workflow for most job applications. ATS systems prefer plain text anyway.
+
+** PDF Workflow (Optional - Requires LaTeX)
+
+If you want nicely formatted PDFs, install LaTeX first:
+
+On macOS:
+#+begin_src shell
+brew install --cask mactex-no-gui
+#+end_src
+
+Then:
+#+begin_src shell
+make pdf        # Build resume PDF
+make cover      # Build cover letter PDF
+make all        # Build both PDFs
+make website    # Build public resume (no phone/address)
+#+end_src
+
+Output files are named =YYYYMMDD--ryan-laxson-resume.pdf= and placed in =output/=.
+
+* Repo Structure
+
+#+begin_example
+laxjob/
+├── README.org           # This file
+├── Makefile             # Build automation
+├── .gitignore
+├── resume.md            # Master resume (Markdown - edit this!)
+├── resume.txt           # Plain text version (for ATS copy/paste)
+├── resume.tex           # LaTeX version (optional, for PDFs)
+├── resume-public.tex    # Wrapper for public PDF (no phone/address)
+├── cover-letter.tex     # Cover letter template with methodology
+└── output/              # Generated files (gitignored)
+#+end_example
+
+* Public vs Private Resume
+
+The resume supports two versions:
+
+- *Private* (=make resume=): Full contact info including phone and city/state. Use for job applications.
+- *Public* (=make website=): Omits phone and shows only "United States". Use for public website.
+
+Both versions are built from the same =resume.tex= source. The =resume-public.tex= wrapper sets a flag that triggers the conditional:
+
+#+begin_src latex
+\ifdefined\publicversion
+  \address{United States}{}{}      % PUBLIC
+\else
+  \address{City, State}{}{}        % PRIVATE
+  \phone[mobile]{(555) 123-4567}
+\fi
+#+end_src
+
+* Key Metrics (Always Preserve)
+
+When tailoring for specific applications, always preserve these metrics:
+
+| Metric | Context |
+|--------+---------|
+| *90 min → 3 min* | Support incident response time reduction |
+| *$250K annually* | Cost savings from automated GDPR/ticket workflows |
+| *Cross-functional* | Stakeholder alignment across Support, Engineering, Product, GTM |
+
+* Workflow
+
+** Master Resume (main branch)
+
+The =main= branch contains your canonical, comprehensive resume with /all/
+experience, skills, and achievements. This is your source of truth.
+
+** Job-Specific Applications (feature branches)
+
+For each job application:
+
+1. Create a branch:
+   #+begin_src shell
+   git checkout -b apply/company-name-2026-01
+   #+end_src
+
+2. Tailor =resume.tex= for the specific role:
+   - Choose the appropriate summary variant (Support Ops, Tooling, Customer Experience)
+   - Reorder bullet points to highlight JD requirements
+   - Use keywords from the job description where genuine
+   - Comment out irrelevant items to fit on one page
+
+3. Customize =cover-letter.tex= for the position:
+   - Follow the methodology in the template comments
+   - Map accomplishments to their stated needs
+   - Include at least one metric
+
+4. Generate PDFs:
+   #+begin_src shell
+   make all
+   #+end_src
+
+5. Commit your tailored versions:
+   #+begin_src shell
+   git add -A
+   git commit -m "Tailored resume for Company Name - Position Title"
+   #+end_src
+
+** Strength Mapping
+
+Use this to identify which bullets to prioritize based on JD keywords:
+
+| JD Mentions | Lead With |
+|-------------+-----------|
+| AI, automation, chatbots | IncidentBot, AI-powered messaging agents |
+| Zendesk, support tooling | Problem ticket creation, routing, escalation paths |
+| Data, analytics, metrics | Databricks/Looker/Grafana dashboards |
+| Cross-functional, stakeholders | Partnership with Support/Engineering/Product/GTM |
+| Documentation, playbooks | Authored playbooks, governance models, training |
+| Experimentation, iteration | AI tooling evaluation, LLM prompt framework |
+| Customer experience, communications | Statuspage automation, customer-facing updates |
+| Cost savings, efficiency | $250K savings, 90→3 min improvement |
+
+** ATS Plain Text Export
+
+For online application forms that want plain text:
+#+begin_src shell
+make text
+#+end_src
+
+This outputs a clean, ATS-friendly version you can copy/paste.
+
+** Updating Master Resume
+
+When you add new experience or skills:
+
+#+begin_src shell
+git checkout main
+# Edit resume.tex
+git commit -am "Add new project to experience"
+#+end_src
+
+* Customization
+
+** Contact Information
+
+Update these in =resume.tex= and =cover-letter.tex=:
+- Address (private version)
+- Phone number
+- Email
+- LinkedIn/GitHub (optional)
+
+** Summary Variants
+
+Three summary options are included in =resume.tex=. Uncomment the one that best matches each role:
+
+1. *Support Operations / AI Automation* (default)
+2. *Tooling / Engineering Focus*
+3. *Customer Experience Focus*
+
+** moderncv Styles
+
+In =resume.tex=, change the style:
+#+begin_src latex
+\moderncvstyle{classic}       % casual, classic, banking, oldstyle, fancy, contemporary
+\moderncvstyle{contemporary}  % modern style with optional QR code (use 'noqr' to disable)
+#+end_src
+
+** Color Themes
+
+#+begin_src latex
+\moderncvcolor{blue}      % black, blue, burgundy, green, grey, orange, purple, red
+\moderncvcolor{cerulean}  % use with 'contemporary' style
+#+end_src
+
+** Page Margins
+
+Adjust for more/less content:
+#+begin_src latex
+\usepackage[scale=0.85]{geometry}   % Increase scale for tighter margins
+#+end_src
+
+* Cover Letter Methodology
+
+The cover letter template includes guidance based on effective tailoring:
+
+1. *Opening (2-3 sentences)*: Role, genuine interest, hint at fit
+2. *Body 1 - Why You're a Fit*: 2-3 accomplishments mapped to JD needs
+   - Use their language
+   - Include at least one metric
+3. *Body 2 - Why This Company*: Specific reason (not generic)
+4. *Closing*: Brief call to action, thank them
+
+Keep under 400 words. The template includes a strength mapping reference to help select the right accomplishments for each JD.
+
+* Tips
+
+- Keep master resume comprehensive; trim on branches
+- Use =git diff= to compare versions
+- Comment out sections with =%= instead of deleting
+- One page is ideal for most applications
+- Don't over-optimize: well-matched 80% beats keyword-stuffed 100%
+- Test both =make resume= and =make website= after editing contact info
+
+* Pre-Submission Checklist
+
+** Resume
+- [ ] Summary adapted to role's domain
+- [ ] Top 3 bullets address top 3 JD requirements
+- [ ] All relevant JD keywords present (where genuine)
+- [ ] Metrics preserved: $250K, 90→3 min
+- [ ] No passive language ("exposure to," "familiar with")
+
+** Cover Letter
+- [ ] Company name correct throughout
+- [ ] Role title matches exactly
+- [ ] At least one specific company reference (not generic)
+- [ ] At least one metric included
+- [ ] Under 400 words
+
+** Authenticity
+- [ ] Every claim defensible in an interview
+- [ ] Nothing inflated or fabricated
+- [ ] Reads naturally (direct, practical tone)
+
+* TODOs / Future Ideas
+
+** Job Application Tracker
+
+A simple =applications.org= file for tracking application status:
+
+#+begin_src org
+| Company | Role | Branch               | Applied    | Status       | Follow-up  | Notes |
+|---------+------+----------------------+------------+--------------+------------+-------|
+| Figma   | AI   | apply/figma-2026-02  | 2026-02-19 | Applied      |            |       |
+| Acme    | SWE  | apply/acme-2026-01   | 2026-01-15 | Phone Screen | 2026-01-22 |       |
+#+end_src
+
+Standard lifecycle statuses:
+- =Draft= - Working on tailored resume
+- =Applied= - Submitted application
+- =No Response= - No reply after 2+ weeks
+- =Phone Screen= - Initial recruiter call
+- =Technical= - Technical interview stage
+- =Onsite= - Final round interviews
+- =Offer= - Received offer
+- =Accepted= / =Declined= - Final outcome
+- =Rejected= - They said no
+
+** Shell Helper Script
+
+A lightweight =laxjob.sh= script with guided prompts for common tasks:
+
+#+begin_src shell
+./laxjob.sh new      # Prompt for company name, create apply/company-YYYY-MM branch
+./laxjob.sh list     # Show all apply/* branches with dates
+./laxjob.sh switch   # Interactive menu (fzf) to switch branches
+./laxjob.sh build    # Run make all
+./laxjob.sh status   # Show current branch + uncommitted changes
+#+end_src
+
+** Snippets Library
+
+A =snippets/= folder with reusable bullet points:
+
+#+begin_example
+snippets/
+├── ai-automation.tex
+├── zendesk.tex
+├── data-dashboards.tex
+├── cross-functional.tex
+#+end_example
+
+Mix and match when tailoring resumes.
