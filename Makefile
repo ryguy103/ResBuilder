@@ -12,23 +12,30 @@ DATE_PREFIX := $(shell date +%Y%m%d)
 # MARKDOWN WORKFLOW (No LaTeX Required)
 # ============================================================================
 
-.PHONY: help view copy save md clean
+.PHONY: help view copy save md clean new list done back status tips
 
 help: ## Show this help
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "laxjob - Ryan Laxson's Resume System"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
-	@echo "MARKDOWN COMMANDS (no LaTeX required):"
+	@echo "JOB APPLICATION WORKFLOW:"
+	@echo "  make new company=X role=Y   Start new application branch"
+	@echo "  make list                   List all application branches"
+	@echo "  make status                 Show current branch & changes"
+	@echo "  make done                   Commit & push current branch"
+	@echo "  make back                   Return to main branch"
+	@echo "  make tips                   Show tailoring tips"
+	@echo ""
+	@echo "RESUME COMMANDS:"
 	@echo "  make view      Display plain text resume in terminal"
 	@echo "  make copy      Copy plain text resume to clipboard"
 	@echo "  make save      Save dated copy to output/ folder"
 	@echo "  make md        Open resume.md in default editor"
 	@echo ""
-	@echo "LATEX COMMANDS (requires MacTeX):"
+	@echo "LATEX COMMANDS (optional - requires MacTeX):"
 	@echo "  make pdf       Build resume PDF"
 	@echo "  make cover     Build cover letter PDF"
-	@echo "  make all       Build both PDFs"
 	@echo ""
 	@echo "OTHER:"
 	@echo "  make clean     Remove generated files"
@@ -54,6 +61,114 @@ md: ## Open resume.md in default editor
 
 $(OUTPUT_DIR):
 	@mkdir -p $(OUTPUT_DIR)
+
+# ============================================================================
+# JOB APPLICATION WORKFLOW
+# ============================================================================
+
+new: ## Start new application: make new company=figma role=ai-specialist
+	@if [ -z "$(company)" ]; then \
+		echo "Usage: make new company=companyname role=jobtitle"; \
+		echo "Example: make new company=figma role=ai-specialist"; \
+		exit 1; \
+	fi
+	@ROLE=$${role:-position}; \
+	BRANCH="apply/$(company)-$$ROLE"; \
+	echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; \
+	echo "Creating application branch: $$BRANCH"; \
+	echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; \
+	git checkout -b $$BRANCH; \
+	echo ""; \
+	echo "✓ Branch created: $$BRANCH"; \
+	echo ""; \
+	echo "NEXT STEPS:"; \
+	echo "  1. Edit resume.md to tailor for this role"; \
+	echo "  2. Update resume.txt to match (keep in sync)"; \
+	echo "  3. Run 'make copy' to copy to clipboard"; \
+	echo "  4. Run 'make done' when finished"; \
+	echo ""; \
+	echo "Run 'make tips' for tailoring guidance"; \
+	echo ""
+
+list: ## List all application branches
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "Application Branches"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@git branch -a | grep "apply/" || echo "No application branches yet."
+	@echo ""
+	@echo "Current branch: $$(git branch --show-current)"
+	@echo ""
+
+status: ## Show current branch and uncommitted changes
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "Current branch: $$(git branch --show-current)"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@git status --short
+	@echo ""
+
+done: ## Commit changes and push current branch
+	@BRANCH=$$(git branch --show-current); \
+	if [ "$$BRANCH" = "main" ]; then \
+		echo "Error: You're on main. Create an application branch first:"; \
+		echo "  make new company=companyname role=jobtitle"; \
+		exit 1; \
+	fi; \
+	echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; \
+	echo "Saving application: $$BRANCH"; \
+	echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"; \
+	git add -A; \
+	git commit -m "Tailored resume for $$BRANCH" || echo "Nothing to commit"; \
+	git push -u origin $$BRANCH; \
+	echo ""; \
+	echo "✓ Saved and pushed: $$BRANCH"; \
+	echo ""; \
+	echo "Run 'make back' to return to main branch"; \
+	echo ""
+
+back: ## Return to main branch
+	@echo "Switching to main branch..."
+	@git checkout main
+	@echo ""
+	@echo "✓ Back on main"
+	@echo ""
+
+tips: ## Show tailoring tips and strength mapping
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "TAILORING TIPS"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "STRENGTH MAPPING - Lead with bullets that match JD keywords:"
+	@echo ""
+	@echo "  JD mentions AI/automation/chatbots:"
+	@echo "    → IncidentBot, AI-powered messaging agents, LLM framework"
+	@echo ""
+	@echo "  JD mentions Zendesk/support tooling:"
+	@echo "    → Problem ticket creation, routing, escalation paths"
+	@echo ""
+	@echo "  JD mentions data/analytics/metrics:"
+	@echo "    → Databricks/Looker/Grafana dashboards"
+	@echo ""
+	@echo "  JD mentions cross-functional/stakeholders:"
+	@echo "    → Partnership with Support/Engineering/Product/GTM"
+	@echo ""
+	@echo "  JD mentions documentation/playbooks:"
+	@echo "    → Authored playbooks, governance models, training"
+	@echo ""
+	@echo "  JD mentions experimentation/iteration:"
+	@echo "    → AI tooling evaluation, LLM prompt framework"
+	@echo ""
+	@echo "  JD mentions customer experience:"
+	@echo "    → Statuspage automation, customer-facing updates"
+	@echo ""
+	@echo "  JD mentions cost savings/efficiency:"
+	@echo "    → \$$250K savings, 90→3 min improvement"
+	@echo ""
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "KEY METRICS (always preserve these):"
+	@echo "  • Reduced incident response: 90 min → 3 min"
+	@echo "  • Cost savings: \$$250K annually"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
 
 # ============================================================================
 # LATEX WORKFLOW (Optional - requires: brew install --cask mactex-no-gui)
