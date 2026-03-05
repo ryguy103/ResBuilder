@@ -1,0 +1,285 @@
+# =============================================================================
+# MASTER PROFESSIONAL PROFILE
+# =============================================================================
+# This file contains all your professional details. The AI uses this as a
+# comprehensive source when tailoring resumes and cover letters.
+# Edit this file to add new experiences, skills, or achievements.
+# =============================================================================
+
+personal:
+  name: Ryan Laxson
+  location: Longmont, CO
+  phone: "(503) 381-5026"
+  email: ryanlaxson103@gmail.com
+  linkedin: linkedin.com/in/rylaxson
+  linkedin_url: https://www.linkedin.com/in/rylaxson/
+  
+  # Different summary variations for different role types
+  summaries:
+    default: >
+      Incident Manager focused on Data Analysis and AI solutions with over 10 years
+      of professional experience in the SaaS space. Specializing in incident management,
+      automation, and cross-functional communication. Driven by a commitment to building
+      scalable solutions and fostering a culture of transparency.
+    
+    automation_focused: >
+      Automation Engineer with over 10 years building workflow automation systems and
+      debugging complex operational processes. Specialized in translating manual workflows
+      into reliable automation using browser automation, APIs, and AI-assisted decision logic.
+    
+    support_focused: >
+      Operations specialist with 10+ years in SaaS, building automation and improving
+      cross-functional workflows. Passionate about reducing friction, creating clear
+      documentation, and building systems that help distributed teams work with clarity.
+    
+    ai_focused: >
+      AI-focused operations professional with 10+ years in SaaS. Expert in building
+      AI-powered automation tools, LLM integrations, and intelligent workflow systems
+      that dramatically improve operational efficiency.
+
+experience:
+  - company: Zapier
+    location: Fully Remote
+    roles:
+      - title: Incident Manager - Engineering
+        dates: Feb 2025 – Present
+        highlights:
+          - Own Zapier's incident management program end-to-end, driving consistent execution across Engineering, Support, and GTM teams
+          - Led implementation and ongoing operation of incident.io—designing workflows, escalation logic, integrations, and classification that reduced friction and improved auditability
+          - Migrated Support workflows into incident.io, aligning cross-functional teams while preserving customer communication standards
+          - Build incident dashboards and reporting in Databricks to surface trends, risks, and systemic issues for leadership decision-making
+          - Manage PagerDuty escalation policies and on-call integrations to ensure reliable responder coverage
+          - Extend internal automation (IncidentBot) to reduce manual effort and improve lifecycle tracking accuracy
+          - Review post-incident timelines and coach teams toward stronger learning practices and accountability
+          - Develop documentation and training for Incident Commanders, Communication Leads, and Support Leads—normalizing expectations across the organization
+        
+      - title: Incident Manager - Support
+        dates: Nov 2022 – Feb 2025
+        highlights:
+          - Built and maintained IncidentBot, a custom Slack application that bridged the gap between support and engineering during incidents by automating updates, streamlining escalations, and providing real-time visibility
+          - Standardized customer-facing incident communications by introducing SLAs for update frequency and clear status frameworks (Investigating, Identified, Monitoring, Resolved)
+          - Created and managed a rotating on-call / "Incident Watch" schedule to maximize response coverage while minimizing burnout
+          - Coached and mentored support agents on incident recognition, escalation, and best practices, fostering stronger collaboration with engineering
+          - Drove continuous improvement by reviewing processes and tooling regularly, laying the groundwork for Zapier's reliability culture
+        
+      - title: Sr. Technical Support Specialist
+        dates: Oct 2021 – Nov 2022
+        highlights:
+          - Resolved complex customer issues across Zapier's automation platform, working directly with developers and technical customers to identify patterns suitable for AI agent automation
+          - Partnered with Support leadership to refine ticket routing and escalation paths, contributing data flows and decision frameworks later encoded into automated resolution systems
+          - Identified recurring friction points and contributed automation opportunities, building foundational knowledge systems that improved signal quality and reduced manual workload
+          - Supported high-volume queues while maintaining customer experience standards, establishing quality metrics and feedback loops essential for AI agent training
+        
+      - title: Technical Support Specialist
+        dates: Jan 2020 – Oct 2021
+        highlights:
+          - Provided frontline technical support for Zapier's automation platform
+          - Developed expertise in troubleshooting complex multi-step workflows
+          - Contributed to internal knowledge base and documentation
+
+  - company: New Relic
+    location: Portland, OR
+    roles:
+      - title: Business Support Engineer
+        dates: Apr 2018 – Dec 2019
+        highlights:
+          - Provided account-based customer support including SAML/SSO configuration, RBAC and account hierarchy within a B2B customer service environment
+          - Serviced GDPR related requests for data access and deletion as well as general ticket triage
+          - Collaborated cross-team with security and privacy teams for escalated issues
+          - Served as security liaison, bridging the gap between security and support to ensure effective anticipatory support for ongoing changes
+          - Delivered security/confidentiality related support trainings emphasizing values of confidential information and customer data handling
+          - Collaborated with various teams to launch a new live chat support service
+          - Developed support's overall processes for handling GDPR-related inquiries
+
+  - company: Squarespace
+    location: Portland, OR
+    roles:
+      - title: Senior Support Advisor
+        dates: Feb 2015 – Apr 2018
+        highlights:
+          - Provided chat-based customer support, quickly understanding customer inquiries and delivering solutions
+          - Trained customers of all skill levels to use a cloud-based CMS
+          - Created internal informational podcast content
+          - Provided training at workshops and within mentorship programs
+          - Organized and conducted team presentations
+          - Consistently acknowledged for cross-functional team collaboration and regularly exceeded company-wide KPIs
+
+skills:
+  categories:
+    - name: Automation & Integration
+      items:
+        - Zapier
+        - Python
+        - JavaScript
+        - MCP (Model Context Protocol)
+        - webhooks
+        - Slack apps
+        - REST APIs
+        - browser automation
+    
+    - name: Incident Management
+      items:
+        - incident.io
+        - PagerDuty
+        - Statuspage
+        - on-call operations
+        - post-incident reviews
+        - runbooks
+    
+    - name: Data & Dashboards
+      items:
+        - SQL
+        - Databricks
+        - Looker
+        - Grafana
+        - reporting
+        - trend analysis
+    
+    - name: AI/LLM
+      items:
+        - OpenAI APIs
+        - Claude/Anthropic APIs
+        - prompt engineering
+        - AI-assisted workflows
+        - LLM integrations
+    
+    - name: Ops Tooling
+      items:
+        - Zendesk
+        - Jira
+        - Confluence
+        - Slack
+        - GitHub
+
+  # Specific technical proficiencies
+  programming:
+    - Python (intermediate)
+    - JavaScript (intermediate)
+    - SQL (proficient)
+    - Bash scripting
+  
+  soft_skills:
+    - Cross-functional collaboration
+    - Technical writing and documentation
+    - Training and mentorship
+    - Process improvement
+    - Stakeholder communication
+    - Remote team coordination
+
+projects:
+  - name: IncidentBot
+    type: work
+    description: >
+      AI-powered incident coordination system built as a custom Slack application.
+      Integrates with Zendesk, incident.io, Statuspage, PagerDuty, and OpenAI APIs.
+    achievements:
+      - Reduced average support response times from 88.6 minutes to 3.6 minutes
+      - Automated incident updates and escalations
+      - Provided real-time operational visibility across teams
+    technologies:
+      - Python
+      - Slack API
+      - OpenAI
+      - Zendesk
+      - PagerDuty
+  
+  - name: LLM Prompt Evaluation Framework
+    type: personal
+    description: >
+      Experimentation framework to test prompts across multiple LLM providers
+      against defined success criteria.
+    achievements:
+      - Implemented automated scoring and comparison metrics
+      - Used data-driven analysis to identify reliability gaps
+      - Improved consistency of AI-generated outputs
+    technologies:
+      - Python
+      - OpenAI
+      - Anthropic Claude
+  
+  - name: Multi-Assistant AI Chat Platform
+    type: personal
+    description: >
+      AI-powered chat application where multiple AI assistants collaborate in
+      real-time, each maintaining distinct expertise and perspectives.
+    achievements:
+      - Designed performance optimizations reducing response times to near-instant
+      - Improved user experience and application reliability
+    technologies:
+      - Python
+      - Multiple LLM APIs
+
+awards:
+  - name: Zapier SPOT Award - Status Page Leadership
+    date: Nov 2025
+    description: >
+      Recognized for proactively improving Zapier's incident/status communication
+      system, driving cross-functional alignment and strengthening customer trust
+      during reliability events.
+  
+  - name: Zapier SPOT Award - Change Management Improvements
+    date: May 2025
+    description: >
+      Awarded for redesigning the engineering change management process, applying
+      creative problem-solving to remove workflow friction and improve cross-team execution.
+  
+  - name: Zapier SPOT Award - IncidentBot
+    date: Jan 2025
+    description: >
+      Awarded for building IncidentBot, an AI-powered incident coordination system
+      that reduced average support response times from 88.6 minutes to 3.6 minutes,
+      dramatically minimizing customer impact and improving operational visibility.
+  
+  - name: GTS Excellence Award
+    date: Aug 2019
+    organization: New Relic
+    description: >
+      Awarded by VP of Technical Support for launching live chat support service,
+      demonstrating great teamwork, fantastic domain knowledge, and commitment to
+      customer experience.
+  
+  - name: Q1 FY 2020 SPOT Award
+    date: Jul 2019
+    organization: New Relic
+    description: >
+      Recognized for GDPR and Security advocacy, participating in Security
+      Collaboration meetings, and calmly navigating high-pressure security situations.
+
+education:
+  - degree: B.A. in Communications
+    institution: Boise State University
+    years: 2008–2013
+
+# Key metrics and accomplishments (for easy reference in tailoring)
+key_metrics:
+  - metric: "Response time reduction"
+    value: "88.6 min → 3.6 min"
+    context: "IncidentBot implementation"
+  
+  - metric: "Cost savings"
+    value: "$250K annually"
+    context: "Automated GDPR/data request workflows"
+  
+  - metric: "Years of experience"
+    value: "10+"
+    context: "SaaS industry"
+
+# Values and preferences (helps AI understand your voice)
+preferences:
+  work_style:
+    - Fully remote
+    - Async communication
+    - Documentation-first
+    - Data-driven decision making
+  
+  interests:
+    - AI/ML applications
+    - Automation engineering
+    - Process optimization
+    - Building developer tools
+  
+  looking_for:
+    - Roles involving AI/automation
+    - Remote-first companies
+    - Cross-functional collaboration
+    - Opportunities to build tools

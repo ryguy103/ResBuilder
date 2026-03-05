@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - ResBuilder{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">Professional Profile</h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Your master repository of professional details. The AI uses this to tailor resumes and cover letters.
+        </p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 mb-6">
+        <nav class="-mb-px flex space-x-8" id="profile-tabs">
+            <button onclick="showTab('personal')" class="tab-btn active border-primary-500 text-primary-600 whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium" data-tab="personal">
+                Personal Info
+            </button>
+            <button onclick="showTab('experience')" class="tab-btn border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium" data-tab="experience">
+                Experience
+            </button>
+            <button onclick="showTab('skills')" class="tab-btn border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium" data-tab="skills">
+                Skills
+            </button>
+            <button onclick="showTab('projects')" class="tab-btn border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium" data-tab="projects">
+                Projects
+            </button>
+            <button onclick="showTab('awards')" class="tab-btn border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium" data-tab="awards">
+                Awards
+            </button>
+            <button onclick="showTab('raw')" class="tab-btn border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium" data-tab="raw">
+                Raw YAML
+            </button>
+        </nav>
+    </div>
+
+    <form hx-post="/profile/save" hx-target="#save-result" hx-swap="innerHTML" id="profile-form">
+        <!-- Personal Info Tab -->
+        <div id="tab-personal" class="tab-content">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    Personal Information
+                </h2>
+                
+                <div class="grid gap-6 sm:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" name="personal_name" value="{{ profile.get('personal', {}).get('name', '') }}" 
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <input type="text" name="personal_location" value="{{ profile.get('personal', {}).get('location', '') }}"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" name="personal_email" value="{{ profile.get('personal', {}).get('email', '') }}"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                        <input type="tel" name="personal_phone" value="{{ profile.get('personal', {}).get('phone', '') }}"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
+                        <input type="url" name="personal_linkedin" value="{{ profile.get('personal', {}).get('linkedin_url', '') }}"
+                            placeholder="https://linkedin.com/in/yourprofile"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
+                    <p class="text-xs text-gray-500 mb-2">Your default professional summary used in resumes</p>
+                    <textarea name="personal_summary" rows="4"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                    >{{ profile.get('personal', {}).get('summaries', {}).get('default', '') }}</textarea>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <h3 class="text-sm font-medium text-gray-900 mb-4">Alternative Summaries</h3>
+                    <p class="text-xs text-gray-500 mb-4">Different summary versions the AI can choose from based on the role type</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Automation-Focused</label>
+                            <textarea name="summary_automation" rows="2"
+                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                            >{{ profile.get('personal', {}).get('summaries', {}).get('automation_focused', '') }}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">AI/ML-Focused</label>
+                            <textarea name="summary_ai" rows="2"
+                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                            >{{ profile.get('personal', {}).get('summaries', {}).get('ai_focused', '') }}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Support/Ops-Focused</label>
+                            <textarea name="summary_support" rows="2"
+                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                            >{{ profile.get('personal', {}).get('summaries', {}).get('support_focused', '') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Experience Tab -->
+        <div id="tab-experience" class="tab-content hidden">
+            <div class="space-y-6">
+                {% for job in profile.get('experience', []) %}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">{{ job.company }}</h3>
+                            <p class="text-sm text-gray-500">{{ job.location }}</p>
+                        </div>
+                    </div>
+                    
+                    {% for role in job.get('roles', []) %}
+                    <div class="{% if not loop.first %}mt-6 pt-6 border-t border-gray-100{% endif %}">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-medium text-gray-900">{{ role.title }}</h4>
+                            <span class="text-sm text-gray-500">{{ role.dates }}</span>
+                        </div>
+                        <ul class="space-y-2">
+                            {% for highlight in role.get('highlights', []) %}
+                            <li class="flex items-start gap-2 text-sm text-gray-600">
+                                <svg class="h-4 w-4 text-primary-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                {{ highlight }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                
+                <div class="text-center py-4">
+                    <p class="text-sm text-gray-500 mb-2">To add or edit work experience, use the Raw YAML tab</p>
+                    <button type="button" onclick="showTab('raw')" class="text-primary-600 hover:text-primary-500 text-sm font-medium">
+                        Edit in YAML
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Tab -->
+        <div id="tab-skills" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Skills & Technologies
+                </h2>
+                
+                <div class="space-y-6">
+                    {% for category in profile.get('skills', {}).get('categories', []) %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ category.name }}</label>
+                        <input type="text" name="skills_{{ loop.index0 }}" 
+                            value="{{ category['items'] | join(', ') }}"
+                            placeholder="Skill 1, Skill 2, Skill 3..."
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                        <p class="mt-1 text-xs text-gray-400">Separate skills with commas</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h3 class="text-sm font-medium text-gray-900 mb-4">Key Metrics & Achievements</h3>
+                    <p class="text-xs text-gray-500 mb-4">Quantifiable accomplishments the AI can highlight</p>
+                    
+                    <div class="space-y-4">
+                        {% for metric in profile.get('key_metrics', []) %}
+                        <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-1">
+                                <span class="text-sm font-medium text-gray-900">{{ metric.metric }}</span>
+                                <span class="text-sm text-gray-500"> - {{ metric.context }}</span>
+                            </div>
+                            <div class="text-lg font-bold text-primary-600">{{ metric.value }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Tab -->
+        <div id="tab-projects" class="tab-content hidden">
+            <div class="space-y-6">
+                {% for project in profile.get('projects', []) %}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-start justify-between mb-3">
+                        <h3 class="text-lg font-semibold text-gray-900">{{ project.name }}</h3>
+                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if project.type == 'work' %}bg-blue-100 text-blue-700{% else %}bg-green-100 text-green-700{% endif %}">
+                            {{ project.type | capitalize }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">{{ project.description }}</p>
+                    
+                    {% if project.achievements %}
+                    <div class="mb-4">
+                        <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Achievements</h4>
+                        <ul class="space-y-1">
+                            {% for achievement in project.achievements %}
+                            <li class="flex items-start gap-2 text-sm text-gray-600">
+                                <svg class="h-4 w-4 text-primary-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                {{ achievement }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.technologies %}
+                    <div class="flex flex-wrap gap-1">
+                        {% for tech in project.technologies %}
+                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                            {{ tech }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                
+                <div class="text-center py-4">
+                    <p class="text-sm text-gray-500 mb-2">To add or edit projects, use the Raw YAML tab</p>
+                    <button type="button" onclick="showTab('raw')" class="text-primary-600 hover:text-primary-500 text-sm font-medium">
+                        Edit in YAML
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Awards Tab -->
+        <div id="tab-awards" class="tab-content hidden">
+            <div class="space-y-4">
+                {% for award in profile.get('awards', []) %}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                            <svg class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-semibold text-gray-900">{{ award.name }}</h3>
+                                <span class="text-sm text-gray-500">{{ award.date }}</span>
+                            </div>
+                            {% if award.organization %}
+                            <p class="text-sm text-gray-500">{{ award.organization }}</p>
+                            {% endif %}
+                            <p class="mt-2 text-sm text-gray-600">{{ award.description }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="text-center py-4">
+                    <p class="text-sm text-gray-500 mb-2">To add or edit awards, use the Raw YAML tab</p>
+                    <button type="button" onclick="showTab('raw')" class="text-primary-600 hover:text-primary-500 text-sm font-medium">
+                        Edit in YAML
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Raw YAML Tab -->
+        <div id="tab-raw" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900">Raw YAML Editor</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">For advanced editing of your full profile</p>
+                    </div>
+                    <a href="https://yaml.org/spec/1.2.2/" target="_blank" class="text-xs text-gray-500 hover:text-gray-700">
+                        YAML syntax guide
+                    </a>
+                </div>
+                
+                <div class="p-4">
+                    <textarea 
+                        name="profile_yaml" 
+                        id="profile_yaml"
+                        rows="30"
+                        class="w-full font-mono text-sm border-gray-300 rounded-lg focus:border-primary-500 focus:ring-primary-500"
+                        spellcheck="false"
+                    >{{ raw_yaml }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="mt-6 flex items-center justify-between bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4">
+            <div id="save-result"></div>
+            <button 
+                type="submit"
+                class="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-500 transition-colors"
+            >
+                <span class="htmx-indicator">
+                    <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </span>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                Save Profile
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.add('hidden');
+    });
+    
+    // Show selected tab content
+    document.getElementById('tab-' + tabName).classList.remove('hidden');
+    
+    // Update tab button styles
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'border-primary-500', 'text-primary-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Highlight active tab
+    const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+    activeBtn.classList.add('active', 'border-primary-500', 'text-primary-600');
+    activeBtn.classList.remove('border-transparent', 'text-gray-500');
+}
+</script>
+{% endblock %}

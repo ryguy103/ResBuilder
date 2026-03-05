@@ -1,4 +1,4 @@
-#+TITLE: laxjob - Ryan Laxson's Resume & Cover Letter System
+#+TITLE: ResBuilder - AI-Powered Resume & Cover Letter System
 #+AUTHOR: Ryan Laxson
 #+OPTIONS: toc:2
 
@@ -50,7 +50,7 @@ Output files are named =YYYYMMDD--ryan-laxson-resume.pdf= and placed in =output/
 * Repo Structure
 
 #+begin_example
-laxjob/
+resbuilder/
 ├── README.org           # This file
 ├── Makefile             # Build automation
 ├── .gitignore
@@ -271,14 +271,14 @@ Standard lifecycle statuses:
 
 ** Shell Helper Script
 
-A lightweight =laxjob.sh= script with guided prompts for common tasks:
+A lightweight =resbuilder.sh= script with guided prompts for common tasks:
 
 #+begin_src shell
-./laxjob.sh new      # Prompt for company name, create apply/company-YYYY-MM branch
-./laxjob.sh list     # Show all apply/* branches with dates
-./laxjob.sh switch   # Interactive menu (fzf) to switch branches
-./laxjob.sh build    # Run make all
-./laxjob.sh status   # Show current branch + uncommitted changes
+./resbuilder.sh new      # Prompt for company name, create apply/company-YYYY-MM branch
+./resbuilder.sh list     # Show all apply/* branches with dates
+./resbuilder.sh switch   # Interactive menu (fzf) to switch branches
+./resbuilder.sh build    # Run make all
+./resbuilder.sh status   # Show current branch + uncommitted changes
 #+end_src
 
 ** Snippets Library

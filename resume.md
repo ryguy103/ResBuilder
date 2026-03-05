@@ -1,49 +1,102 @@
 # Ryan Laxson
 
-**Longmont, CO** | (503) 381-5026 | rylaxson@pm.me | [linkedin.com/in/rylaxson](https://www.linkedin.com/in/rylaxson/)
+**Longmont, CO** | (503) 381-5026 | ryanlaxson103@gmail.com | [linkedin.com/in/rylaxson](https://www.linkedin.com/in/rylaxson/)
 
 ---
 
-Support Operations and AI/Automation specialist with 5+ years driving efficiency at scale. Built AI-powered internal tooling, automated high-volume workflows, and partnered cross-functionally to improve both customer experience and support team productivity.
+Incident Manager focused on Data Analysis and AI solutions with over 10 years of professional experience in the SaaS space. Specializing in incident management, automation, and cross-functional communication. Driven by a commitment to building scalable solutions and fostering a culture of transparency.
 
 ---
 
 ## Professional Experience
 
-### Zapier
-**Incident Management & Support Operations**
+### Zapier — Fully Remote
 
-#### Incident Program Owner / Automation & Tooling Lead
-*Nov 2022 – Present*
+#### Incident Manager - Engineering
+*Feb 2025 – Present*
 
-- Built and operated **IncidentBot**, a custom Slack app integrating Zendesk, incident.io, Atlassian Statuspage, PagerDuty, and OpenAI APIs, automating incident coordination, enabling AI-assisted customer messaging, and supporting one-click Zendesk problem ticket creation for incident tracking; reduced support incident response time from **90 minutes to 3 minutes** and improved cross-functional stakeholder visibility
+- Own Zapier's incident management program end-to-end, driving consistent execution across Engineering, Support, and GTM teams
 
-- Built automated detection and auto-response workflows for GDPR/data access requests and third-party app–generated tickets, reducing manual triage and saving approximately **$250K annually** in support handling costs
+- Led implementation and ongoing operation of **incident.io**—designing workflows, escalation logic, integrations, and classification that reduced friction and improved auditability
 
-- Implemented and operationalized **incident.io**, enabling adoption of built-in AI capabilities and standardizing incident workflows across Support and Engineering
+- Migrated Support workflows into incident.io, aligning cross-functional teams while preserving customer communication standards
 
-- Developed AI-powered messaging agents for customer-facing Statuspage updates, improving timeliness and consistency of external communications during incidents
+- Build incident dashboards and reporting in **Databricks** to surface trends, risks, and systemic issues for leadership decision-making
 
-- Evaluated AI-assisted support tooling through experimentation and feedback analysis, measuring reliability and real-world agent impact; supplemented platform gaps with targeted in-house automation
+- Manage **PagerDuty** escalation policies and on-call integrations to ensure reliable responder coverage
 
-- Partnered closely with Support, Engineering, Product, and GTM to deliver scalable improvements to support and incident workflows
+- Extend internal automation (**IncidentBot**) to reduce manual effort and improve lifecycle tracking accuracy
 
-- Built dashboards in Databricks, Looker, and Grafana to surface incident and support trends and guide prioritization
+- Review post-incident timelines and coach teams toward stronger learning practices and accountability
 
-- Authored and maintained playbooks, governance models, and training programs supporting incident and support operations
+- Develop documentation and training for Incident Commanders, Communication Leads, and Support Leads—normalizing expectations across the organization
 
-#### Senior Technical Support Specialist
-*2019 – Nov 2022*
+#### Incident Manager - Support
+*Nov 2022 – Feb 2025*
 
-- Resolved complex customer issues across Zapier's automation platform, working directly with developers and technical customers
+- Built and maintained **IncidentBot**, a custom Slack application that bridged the gap between support and engineering during incidents by automating updates, streamlining escalations, and providing real-time visibility
 
-- Triaged and escalated high-impact incidents from Support to Engineering, improving signal quality and reducing time to coordinated response
+- Standardized customer-facing incident communications by introducing SLAs for update frequency and clear status frameworks (Investigating, Identified, Monitoring, Resolved)
 
-- Partnered with Support leadership to refine ticket routing, workflows, and escalation paths within Zendesk
+- Created and managed a rotating on-call / "Incident Watch" schedule to maximize response coverage while minimizing burnout
 
-- Identified recurring support friction and contributed to automation opportunities that reduced manual agent workload
+- Coached and mentored support agents on incident recognition, escalation, and best practices, fostering stronger collaboration with engineering
 
-- Supported high-volume ticket queues while maintaining strong customer experience standards
+- Drove continuous improvement by reviewing processes and tooling regularly, laying the groundwork for Zapier's reliability culture
+
+#### Sr. Technical Support Specialist
+*Oct 2021 – Nov 2022*
+
+- Resolved complex customer issues across Zapier's automation platform, working directly with developers and technical customers to identify patterns suitable for AI agent automation
+
+- Partnered with Support leadership to refine ticket routing and escalation paths, contributing data flows and decision frameworks later encoded into automated resolution systems
+
+- Identified recurring friction points and contributed automation opportunities, building foundational knowledge systems that improved signal quality and reduced manual workload
+
+- Supported high-volume queues while maintaining customer experience standards, establishing quality metrics and feedback loops essential for AI agent training
+
+#### Technical Support Specialist
+*Jan 2020 – Oct 2021*
+
+---
+
+### New Relic — Portland, OR
+
+#### Business Support Engineer
+*Apr 2018 – Dec 2019*
+
+- Provided account-based customer support including SAML/SSO configuration, RBAC and account hierarchy within a B2B customer service environment
+
+- Serviced GDPR related requests for data access and deletion as well as general ticket triage
+
+- Collaborated cross-team with security and privacy teams for escalated issues
+
+- Served as security liaison, bridging the gap between security and support to ensure effective anticipatory support for ongoing changes
+
+- Delivered security/confidentiality related support trainings emphasizing values of confidential information and customer data handling
+
+- Collaborated with various teams to launch a new live chat support service
+
+- Developed support's overall processes for handling GDPR-related inquiries
+
+---
+
+### Squarespace — Portland, OR
+
+#### Senior Support Advisor
+*Feb 2015 – Apr 2018*
+
+- Provided chat-based customer support, quickly understanding customer inquiries and delivering solutions
+
+- Trained customers of all skill levels to use a cloud-based CMS
+
+- Created internal informational podcast content
+
+- Provided training at workshops and within mentorship programs
+
+- Organized and conducted team presentations
+
+- Consistently acknowledged for cross-functional team collaboration and regularly exceeded company-wide KPIs
 
 ---
 
@@ -51,32 +104,44 @@ Support Operations and AI/Automation specialist with 5+ years driving efficiency
 
 | Category | Technologies |
 |----------|--------------|
-| **Support & Ops** | Zendesk, incident.io, Atlassian Statuspage, PagerDuty, Slack |
-| **Automation** | Python, JavaScript, webhooks, Slack apps, APIs |
-| **Data & BI** | SQL, Databricks, Looker, Grafana |
-| **AI/LLM** | OpenAI APIs, prompt engineering, AI-assisted messaging, chatbot development |
+| **Automation & Integration** | Zapier, Python, MCP, webhooks, Slack apps, APIs |
+| **Incident Management** | incident.io, PagerDuty, Statuspage, on-call operations |
+| **Data & Dashboards** | SQL, Databricks, reporting, trend analysis |
+| **AI/LLM** | AI-focused automation engineering, OpenAI APIs |
+| **Ops Tooling** | Zendesk, incident.io, Statuspage, PagerDuty |
 
 ---
 
-## Selected Projects
+## Awards
 
-### LLM Prompt Evaluation Framework
-*Personal Project*
+### Zapier SPOT Award - Status Page Leadership
+*Nov 2025*
 
-- Built an experimentation framework to test prompts across multiple LLM providers, evaluating outputs against defined success criteria
-- Implemented automated scoring and comparison metrics to support rapid iteration on prompt design
-- Used data-driven analysis to identify reliability gaps and systematically improve consistency of AI-generated outputs
+Recognized for proactively improving Zapier's incident/status communication system, driving cross-functional alignment and strengthening customer trust during reliability events.
 
-### Self-Hosted Game Streaming Platform
-*Homelab Project*
+### Zapier SPOT Award - Change Management Improvements
+*May 2025*
 
-- Designed and deployed a self-hosted server environment to run and stream classic PC games playable via web browser
-- Built containerized services and automation workflows to simplify game hosting and remote media access
-- Leveraged AI-assisted tooling to accelerate configuration, troubleshooting, and workflow automation across the stack
+Awarded for redesigning the engineering change management process, applying creative problem-solving to remove workflow friction and improve cross-team execution.
+
+### Zapier SPOT Award - IncidentBot
+*Jan 2025*
+
+Awarded for building IncidentBot, an AI-powered incident coordination system that reduced average support response times from **88.6 minutes to 3.6 minutes**, dramatically minimizing customer impact and improving operational visibility.
+
+### GTS Excellence Award
+*Aug 2019*
+
+Awarded by VP of Technical Support for launching live chat support service, demonstrating great teamwork, fantastic domain knowledge, and commitment to customer experience.
+
+### Q1 FY 2020 SPOT Award
+*Jul 2019*
+
+Recognized for GDPR and Security advocacy, participating in Security Collaboration meetings, and calmly navigating high-pressure security situations.
 
 ---
 
 ## Education
 
-**B.A. in Communications and Media Studies**  
-Boise State University
+**B.A. in Communications**  
+Boise State University (2008–2013)

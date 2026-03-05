@@ -1,5 +1,5 @@
 # ============================================================================
-# laxjob Makefile - Ryan Laxson's Resume & Cover Letter System
+# ResBuilder Makefile - Ryan Laxson's Resume & Cover Letter System
 # ============================================================================
 # Primary workflow uses markdown/plain text (no LaTeX required).
 # LaTeX commands available if you install MacTeX later.
@@ -12,21 +12,27 @@ DATE_PREFIX := $(shell date +%Y%m%d)
 # MARKDOWN WORKFLOW (No LaTeX Required)
 # ============================================================================
 
-.PHONY: help view copy save md clean new list done back status tips tailor jd
+.PHONY: help view copy save md clean new list done back status tips tailor jd prepare setup questions web
 
 help: ## Show this help
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "laxjob - Ryan Laxson's Resume System"
+	@echo "ResBuilder - Ryan Laxson's Resume System"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
-	@echo "JOB APPLICATION WORKFLOW:"
-	@echo "  make new company=X role=Y   Start new application branch"
+	@echo "QUICK START:"
+	@echo "  make web                        Launch web interface at localhost:8000"
+	@echo "  make prepare                    CLI: Tailor resume + cover letter"
+	@echo "  make prepare URL=<job-url>      CLI: Scrape job posting from URL"
+	@echo "  make questions                  CLI: Answer application questions only"
+	@echo "  make setup                      Install dependencies (run once)"
+	@echo ""
+	@echo "DISTRIBUTION:"
+	@echo "  make build                      Create standalone desktop app"
+	@echo "  ./install.command               One-click installer (double-click in Finder)"
+	@echo ""
+	@echo "MANUAL WORKFLOW:"
 	@echo "  make jd                     Open jd.txt to paste job description"
 	@echo "  make tailor                 Generate AI prompt to tailor resume"
-	@echo "  make list                   List all application branches"
-	@echo "  make status                 Show current branch & changes"
-	@echo "  make done                   Commit & push current branch"
-	@echo "  make back                   Return to main branch"
 	@echo "  make tips                   Show tailoring tips"
 	@echo ""
 	@echo "RESUME COMMANDS:"
@@ -35,6 +41,11 @@ help: ## Show this help
 	@echo "  make save      Save dated copy to output/ folder"
 	@echo "  make md        Open resume.md in default editor"
 	@echo ""
+	@echo "COVER LETTER COMMANDS:"
+	@echo "  make viewcl    Display cover letter in terminal"
+	@echo "  make copycl    Copy cover letter to clipboard"
+	@echo "  make cl        Open cover-letter.md in default editor"
+	@echo ""
 	@echo "LATEX COMMANDS (optional - requires MacTeX):"
 	@echo "  make pdf       Build resume PDF"
 	@echo "  make cover     Build cover letter PDF"
@@ -42,6 +53,46 @@ help: ## Show this help
 	@echo "OTHER:"
 	@echo "  make clean     Remove generated files"
 	@echo ""
+
+# ============================================================================
+# QUICK START (AI-powered)
+# ============================================================================
+
+setup: ## Install Python dependencies (run once)
+	@echo "Installing dependencies..."
+	@pip install -r requirements.txt
+	@echo ""
+	@echo "✓ Dependencies installed"
+	@echo ""
+	@echo "Next, set your Anthropic API key:"
+	@echo "  export ANTHROPIC_API_KEY='your-key-here'"
+	@echo ""
+	@echo "Get a key at: https://console.anthropic.com/"
+	@echo ""
+
+web: ## Launch web interface at http://localhost:8000
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "Starting ResBuilder Web Interface"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo ""
+	@echo "Open http://localhost:8000 in your browser"
+	@echo "Press Ctrl+C to stop"
+	@echo ""
+	@python3 -m uvicorn web.app:app --reload --host 127.0.0.1 --port 8000
+
+prepare: ## Tailor resume + cover letter, generate .docx files
+ifdef URL
+	@python3 prepare.py "$(URL)"
+else
+	@python3 prepare.py
+endif
+
+questions: ## Answer application questions only (interactive, asks for clarification)
+	@python3 prepare.py --questions
+
+# ============================================================================
+# MANUAL COMMANDS
+# ============================================================================
 
 view: ## Display plain text resume in terminal
 	@cat resume.txt
@@ -60,6 +111,20 @@ save: | $(OUTPUT_DIR) ## Save dated plain text copy to output/
 
 md: ## Open resume.md in default editor
 	@open resume.md 2>/dev/null || code resume.md 2>/dev/null || vim resume.md
+
+# ============================================================================
+# COVER LETTER COMMANDS
+# ============================================================================
+
+viewcl: ## Display cover letter in terminal
+	@cat cover-letter.txt
+
+copycl: ## Copy cover letter to clipboard (macOS)
+	@cat cover-letter.txt | pbcopy
+	@echo "✓ Cover letter copied to clipboard"
+
+cl: ## Open cover-letter.md in default editor
+	@open cover-letter.md 2>/dev/null || code cover-letter.md 2>/dev/null || vim cover-letter.md
 
 $(OUTPUT_DIR):
 	@mkdir -p $(OUTPUT_DIR)
@@ -246,10 +311,31 @@ website: ## Build PUBLIC resume PDF for website (requires LaTeX, main branch onl
 	@echo "✓ Public resume: resume-public.pdf"
 
 # ============================================================================
+# BUILD & DISTRIBUTION
+# ============================================================================
+
+.PHONY: build install-deps
+
+build: ## Build standalone desktop app (creates ResBuilder.app)
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "Building ResBuilder Desktop App"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@pip install pyinstaller
+	@python3 build_app.py
+	@echo ""
+	@echo "✓ Build complete! Find your app in the dist/ folder"
+
+install-deps: ## Install build dependencies
+	@pip install pyinstaller
+	@echo "✓ Build dependencies installed"
+
+# ============================================================================
 # UTILITY
 # ============================================================================
 
 clean: ## Remove generated files
 	@rm -rf $(OUTPUT_DIR)
+	@rm -rf dist build *.spec
 	@rm -f *.aux *.log *.out *.toc *.fdb_latexmk *.fls *.synctex.gz *.pdf
+	@rm -f launcher.py
 	@echo "✓ Cleaned"

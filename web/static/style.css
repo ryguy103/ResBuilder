@@ -1,0 +1,60 @@
+/* Minimal custom styles - most styling via Tailwind CDN */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better focus styles */
+*:focus-visible {
+    outline: 2px solid rgb(59 130 246);
+    outline-offset: 2px;
+}
+
+/* Form input styles */
+input[type="text"],
+input[type="url"],
+input[type="email"],
+textarea,
+select {
+    border-radius: 0.5rem;
+    border-color: rgb(209 213 219);
+    padding: 0.5rem 0.75rem;
+}
+
+input[type="text"]:focus,
+input[type="url"]:focus,
+input[type="email"]:focus,
+textarea:focus,
+select:focus {
+    border-color: rgb(59 130 246);
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+}
+
+/* Textarea resize */
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Loading animations */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Card hover effects */
+.card-hover {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
+}

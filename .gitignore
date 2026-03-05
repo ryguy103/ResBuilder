@@ -1,5 +1,6 @@
-# Output directory
+# Output directories
 output/
+companies/
 
 # LaTeX intermediate files
 *.aux
