@@ -4,19 +4,36 @@
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
+    <!-- Welcome Banner -->
+    <div class="mb-6 bg-gradient-to-r from-primary-600 to-primary-800 rounded-xl p-6 text-white">
+        <h1 class="text-2xl font-bold">Build Your Professional Profile</h1>
+        <p class="mt-2 text-primary-100 text-sm leading-relaxed">
+            The more detail you provide, the better our AI can tailor your resumes and cover letters to each job.
+            Include <strong class="text-white">every</strong> position, skill, and accomplishment you can think of &mdash;
+            the AI will intelligently select what's most relevant for each application.
+        </p>
+    </div>
+
     <!-- Progress -->
     <div class="mb-8">
         <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
-            <span>Step <span id="current-step">1</span> of 4</span>
+            <span>Step <span id="current-step">1</span> of 7</span>
             <span id="step-name">Personal Info</span>
         </div>
         <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div id="progress-bar" class="h-full bg-primary-600 rounded-full transition-all duration-300" style="width: 25%"></div>
+            <div id="progress-bar" class="h-full bg-primary-600 rounded-full transition-all duration-300" style="width: 14.3%"></div>
         </div>
     </div>
 
+    {% if error %}
+    <div class="mb-6 rounded-lg bg-red-50 border border-red-200 p-4">
+        <p class="text-sm text-red-700">{{ error }}</p>
+    </div>
+    {% endif %}
+
     <form id="setup-form" hx-post="/profile/setup" hx-target="body">
-        <!-- Step 1: Personal Info -->
+
+        <!-- ===== Step 1: Personal Info ===== -->
         <div id="step-1" class="setup-step">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                 <div class="text-center mb-8">
@@ -62,11 +79,17 @@
                             placeholder="https://linkedin.com/in/johndoe"
                             class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Portfolio / Website</label>
+                        <input type="url" name="personal_website"
+                            placeholder="https://johndoe.com"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Step 2: Professional Summary -->
+        <!-- ===== Step 2: Professional Summary ===== -->
         <div id="step-2" class="setup-step hidden">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                 <div class="text-center mb-8">
@@ -81,7 +104,7 @@
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Professional Summary *</label>
-                    <p class="text-xs text-gray-500 mb-2">2-4 sentences about your experience and what you're looking for</p>
+                    <p class="text-xs text-gray-500 mb-2">2-4 sentences about your experience and what you're looking for. Don't hold back &mdash; you can have multiple summary versions.</p>
                     <textarea name="personal_summary" rows="5" required
                         placeholder="Example: Results-driven software engineer with 5+ years of experience building scalable web applications. Passionate about clean code and user-centric design. Seeking opportunities to lead technical initiatives at a fast-growing company."
                         class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"></textarea>
@@ -89,7 +112,7 @@
             </div>
         </div>
 
-        <!-- Step 3: Skills -->
+        <!-- ===== Step 3: Skills ===== -->
         <div id="step-3" class="setup-step hidden">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                 <div class="text-center mb-8">
@@ -100,135 +123,393 @@
                         </svg>
                     </div>
                     <h2 class="text-xl font-semibold text-gray-900">Your Skills & Expertise</h2>
-                    <p class="text-sm text-gray-500 mt-1">Technologies, tools, and soft skills you want to highlight</p>
+                    <p class="text-sm text-gray-500 mt-1">List everything you know &mdash; the AI picks the most relevant skills for each application</p>
                 </div>
                 
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Technical Skills</label>
-                        <p class="text-xs text-gray-500 mb-2">Programming languages, frameworks, tools (comma-separated)</p>
-                        <input type="text" name="skills_technical"
-                            placeholder="Python, JavaScript, React, AWS, Docker, PostgreSQL"
-                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        <p class="text-xs text-gray-500 mb-2">Languages, frameworks, tools, platforms (comma-separated). Include all of them, even ones you haven't used recently.</p>
+                        <textarea name="skills_technical" rows="3"
+                            placeholder="Python, JavaScript, React, Node.js, AWS, Docker, PostgreSQL, Redis, Terraform, Git, CI/CD, REST APIs, GraphQL..."
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Domain Expertise</label>
-                        <p class="text-xs text-gray-500 mb-2">Areas you specialize in (comma-separated)</p>
-                        <input type="text" name="skills_domain"
-                            placeholder="API Development, Data Engineering, DevOps, Machine Learning"
-                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        <p class="text-xs text-gray-500 mb-2">Industry knowledge and specializations (comma-separated)</p>
+                        <textarea name="skills_domain" rows="2"
+                            placeholder="API Development, Data Engineering, DevOps, Machine Learning, SaaS, E-commerce, FinTech..."
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Soft Skills</label>
-                        <p class="text-xs text-gray-500 mb-2">Interpersonal and leadership skills (comma-separated)</p>
-                        <input type="text" name="skills_soft"
-                            placeholder="Team Leadership, Problem Solving, Communication, Mentoring"
+                        <p class="text-xs text-gray-500 mb-2">Leadership, communication, and interpersonal skills (comma-separated)</p>
+                        <textarea name="skills_soft" rows="2"
+                            placeholder="Team Leadership, Cross-functional Collaboration, Problem Solving, Mentoring, Stakeholder Management..."
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Certifications & Licenses</label>
+                        <p class="text-xs text-gray-500 mb-2">Professional certifications (comma-separated)</p>
+                        <input type="text" name="skills_certifications"
+                            placeholder="AWS Solutions Architect, PMP, Google Cloud Professional, Scrum Master..."
                             class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Step 4: Work Experience -->
+        <!-- ===== Step 4: Work Experience (dynamic, multiple) ===== -->
         <div id="step-4" class="setup-step hidden">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                <div class="text-center mb-8">
+                <div class="text-center mb-6">
                     <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
                         </svg>
                     </div>
-                    <h2 class="text-xl font-semibold text-gray-900">Your Most Recent Job</h2>
-                    <p class="text-sm text-gray-500 mt-1">You can add more experience later from the profile page</p>
+                    <h2 class="text-xl font-semibold text-gray-900">Your Work Experience</h2>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Add <strong>every job</strong> you've held &mdash; internships, part-time, freelance, everything counts.
+                        The AI will choose the most relevant entries for each application.
+                    </p>
+                </div>
+
+                <div class="rounded-lg bg-amber-50 border border-amber-200 p-3 mb-6">
+                    <p class="text-xs text-amber-800">
+                        <strong>Tip:</strong> The more positions you add, the more material the AI has to work with. Even short stints and older roles can contain valuable skills that match a target job.
+                    </p>
                 </div>
                 
-                <div class="space-y-4">
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Company Name *</label>
-                            <input type="text" name="job_company" required
-                                placeholder="Acme Corp"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                <div id="jobs-container">
+                    <!-- Job 1 (pre-filled template) -->
+                    <div class="job-entry border border-gray-200 rounded-lg p-5 mb-4" data-job-index="0">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-800">Position <span class="job-number">1</span></h3>
+                            <button type="button" onclick="removeJob(this)" class="remove-job-btn hidden text-gray-400 hover:text-red-500 text-xs">Remove</button>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Job Title *</label>
-                            <input type="text" name="job_title" required
-                                placeholder="Senior Software Engineer"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        <div class="space-y-3">
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Company Name *</label>
+                                    <input type="text" name="job_0_company" required
+                                        placeholder="Acme Corp"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Job Title *</label>
+                                    <input type="text" name="job_0_title" required
+                                        placeholder="Senior Software Engineer"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Dates</label>
+                                    <input type="text" name="job_0_dates"
+                                        placeholder="Jan 2022 - Present"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Location</label>
+                                    <input type="text" name="job_0_location"
+                                        placeholder="San Francisco, CA (Remote)"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Key Accomplishments</label>
+                                <p class="text-xs text-gray-400 mb-1">One per line. Start with action verbs and include metrics when possible.</p>
+                                <textarea name="job_0_highlights" rows="4"
+                                    placeholder="Led team of 5 engineers to deliver core product features&#10;Reduced API response time by 40% through caching optimization&#10;Built CI/CD pipeline reducing deployment time from 2 hours to 15 minutes"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+                            </div>
                         </div>
                     </div>
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Dates</label>
-                            <input type="text" name="job_dates"
-                                placeholder="Jan 2022 - Present"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                </div>
+
+                <button type="button" onclick="addJob()" id="add-job-btn"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Add Another Position
+                </button>
+                <p class="text-center text-xs text-gray-400 mt-2">
+                    Don't skip older roles &mdash; they often contain transferable skills that make your profile stand out
+                </p>
+            </div>
+        </div>
+
+        <!-- ===== Step 5: Education ===== -->
+        <div id="step-5" class="setup-step hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-900">Education</h2>
+                    <p class="text-sm text-gray-500 mt-1">Degrees, bootcamps, online programs &mdash; include all formal education</p>
+                </div>
+                
+                <div id="education-container">
+                    <div class="education-entry border border-gray-200 rounded-lg p-5 mb-4" data-edu-index="0">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-800">Education <span class="edu-number">1</span></h3>
+                            <button type="button" onclick="removeEducation(this)" class="remove-edu-btn hidden text-gray-400 hover:text-red-500 text-xs">Remove</button>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                            <input type="text" name="job_location"
-                                placeholder="San Francisco, CA (Remote)"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        <div class="space-y-3">
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Degree / Program</label>
+                                    <input type="text" name="edu_0_degree"
+                                        placeholder="B.S. Computer Science"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Institution</label>
+                                    <input type="text" name="edu_0_institution"
+                                        placeholder="University of California, Berkeley"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Years</label>
+                                    <input type="text" name="edu_0_years"
+                                        placeholder="2014 - 2018"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">GPA / Honors (optional)</label>
+                                    <input type="text" name="edu_0_honors"
+                                        placeholder="3.8 GPA, Dean's List, Magna Cum Laude"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Key Accomplishments</label>
-                        <p class="text-xs text-gray-500 mb-2">One per line, start with action verbs (Led, Built, Improved...)</p>
-                        <textarea name="job_highlights" rows="5"
-                            placeholder="Led team of 5 engineers to deliver core product features
-Reduced API response time by 40% through caching optimization
-Built CI/CD pipeline reducing deployment time from 2 hours to 15 minutes"
-                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"></textarea>
+                </div>
+
+                <button type="button" onclick="addEducation()" id="add-edu-btn"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Add Another Education Entry
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== Step 6: Projects ===== -->
+        <div id="step-6" class="setup-step hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                        </svg>
                     </div>
+                    <h2 class="text-xl font-semibold text-gray-900">Notable Projects</h2>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Side projects, open-source contributions, and standout work initiatives. 
+                        These demonstrate initiative and depth beyond your job titles.
+                    </p>
+                </div>
+                
+                <div id="projects-container">
+                    <div class="project-entry border border-gray-200 rounded-lg p-5 mb-4" data-proj-index="0">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-800">Project <span class="proj-number">1</span></h3>
+                            <button type="button" onclick="removeProject(this)" class="remove-proj-btn hidden text-gray-400 hover:text-red-500 text-xs">Remove</button>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Project Name</label>
+                                    <input type="text" name="proj_0_name"
+                                        placeholder="Internal Analytics Dashboard"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Type</label>
+                                    <select name="proj_0_type" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                        <option value="work">Work Project</option>
+                                        <option value="personal">Personal / Side Project</option>
+                                        <option value="open_source">Open Source</option>
+                                        <option value="academic">Academic</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                                <textarea name="proj_0_description" rows="2"
+                                    placeholder="Built a real-time analytics dashboard that replaced a legacy reporting system, serving 200+ daily users"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Key Achievements (one per line)</label>
+                                <textarea name="proj_0_achievements" rows="2"
+                                    placeholder="Reduced report generation time from 2 hours to 30 seconds&#10;Adopted by 3 additional teams within the first month"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Technologies Used (comma-separated)</label>
+                                <input type="text" name="proj_0_technologies"
+                                    placeholder="React, Python, PostgreSQL, D3.js"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="addProject()" id="add-proj-btn"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Add Another Project
+                </button>
+                <p class="text-center text-xs text-gray-400 mt-2">
+                    This step is optional but strongly recommended &mdash; projects are powerful differentiators
+                </p>
+            </div>
+        </div>
+
+        <!-- ===== Step 7: Awards & Achievements ===== -->
+        <div id="step-7" class="setup-step hidden">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-900">Awards & Recognition</h2>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Promotions, awards, honors, hackathon wins, publications &mdash; anything that shows impact.
+                        This step is optional.
+                    </p>
+                </div>
+                
+                <div id="awards-container">
+                    <div class="award-entry border border-gray-200 rounded-lg p-5 mb-4" data-award-index="0">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-800">Award <span class="award-number">1</span></h3>
+                            <button type="button" onclick="removeAward(this)" class="remove-award-btn hidden text-gray-400 hover:text-red-500 text-xs">Remove</button>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Award Name</label>
+                                    <input type="text" name="award_0_name"
+                                        placeholder="Employee of the Quarter"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                                    <input type="text" name="award_0_date"
+                                        placeholder="Q3 2023"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Organization (optional)</label>
+                                <input type="text" name="award_0_organization"
+                                    placeholder="Acme Corp"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                                <textarea name="award_0_description" rows="2"
+                                    placeholder="Recognized for leading the migration to microservices architecture ahead of schedule"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="addAward()" id="add-award-btn"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Add Another Award
+                </button>
+
+                <div class="mt-6 rounded-lg bg-primary-50 border border-primary-200 p-4">
+                    <p class="text-sm text-primary-800">
+                        <strong>You're all set!</strong> Click <em>Finish Setup</em> below to save your profile.
+                        You can always come back to add or edit information from the Profile page.
+                    </p>
                 </div>
             </div>
         </div>
 
+        <!-- Hidden field to track job/edu/project/award counts -->
+        <input type="hidden" name="job_count" id="job_count" value="1">
+        <input type="hidden" name="edu_count" id="edu_count" value="1">
+        <input type="hidden" name="proj_count" id="proj_count" value="1">
+        <input type="hidden" name="award_count" id="award_count" value="1">
+
         <!-- Navigation -->
         <div class="mt-6 flex items-center justify-between">
             <button type="button" id="prev-btn" onclick="prevStep()" 
-                class="hidden px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                class="hidden px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 Back
             </button>
             <div class="flex-1"></div>
-            <button type="button" id="next-btn" onclick="nextStep()"
-                class="px-6 py-2.5 text-sm font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-500">
-                Continue
-            </button>
-            <button type="submit" id="finish-btn"
-                class="hidden px-6 py-2.5 text-sm font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-500">
-                Finish Setup
-            </button>
+            <div class="flex items-center gap-3">
+                <button type="button" id="skip-btn" onclick="nextStep()" 
+                    class="hidden px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+                    Skip for now
+                </button>
+                <button type="button" id="next-btn" onclick="nextStep()"
+                    class="px-6 py-2.5 text-sm font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition-colors">
+                    Continue
+                </button>
+                <button type="submit" id="finish-btn"
+                    class="hidden px-6 py-2.5 text-sm font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition-colors">
+                    Finish Setup
+                </button>
+            </div>
         </div>
     </form>
 </div>
 
 <script>
 let currentStep = 1;
-const totalSteps = 4;
-const stepNames = ['Personal Info', 'Professional Summary', 'Skills', 'Work Experience'];
+const totalSteps = 7;
+const stepNames = ['Personal Info', 'Professional Summary', 'Skills', 'Work Experience', 'Education', 'Projects', 'Awards'];
+const skippableSteps = [5, 6, 7];
+
+let jobCount = 1;
+let eduCount = 1;
+let projCount = 1;
+let awardCount = 1;
 
 function updateUI() {
-    // Update progress
     document.getElementById('current-step').textContent = currentStep;
     document.getElementById('step-name').textContent = stepNames[currentStep - 1];
     document.getElementById('progress-bar').style.width = (currentStep / totalSteps * 100) + '%';
     
-    // Show/hide steps
     for (let i = 1; i <= totalSteps; i++) {
         document.getElementById('step-' + i).classList.toggle('hidden', i !== currentStep);
     }
     
-    // Show/hide nav buttons
     document.getElementById('prev-btn').classList.toggle('hidden', currentStep === 1);
     document.getElementById('next-btn').classList.toggle('hidden', currentStep === totalSteps);
     document.getElementById('finish-btn').classList.toggle('hidden', currentStep !== totalSteps);
+    document.getElementById('skip-btn').classList.toggle('hidden', !skippableSteps.includes(currentStep));
 }
 
 function nextStep() {
     if (currentStep < totalSteps) {
         currentStep++;
         updateUI();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
@@ -236,7 +517,263 @@ function prevStep() {
     if (currentStep > 1) {
         currentStep--;
         updateUI();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+}
+
+/* --- Dynamic Job Entries --- */
+function addJob() {
+    const container = document.getElementById('jobs-container');
+    const idx = jobCount;
+    jobCount++;
+    document.getElementById('job_count').value = jobCount;
+
+    const html = `
+    <div class="job-entry border border-gray-200 rounded-lg p-5 mb-4" data-job-index="${idx}">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-800">Position <span class="job-number">${idx + 1}</span></h3>
+            <button type="button" onclick="removeJob(this)" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
+        </div>
+        <div class="space-y-3">
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Company Name</label>
+                    <input type="text" name="job_${idx}_company"
+                        placeholder="Company Name"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Job Title</label>
+                    <input type="text" name="job_${idx}_title"
+                        placeholder="Your Title"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Dates</label>
+                    <input type="text" name="job_${idx}_dates"
+                        placeholder="Start - End"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Location</label>
+                    <input type="text" name="job_${idx}_location"
+                        placeholder="City, State (Remote)"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Key Accomplishments</label>
+                <textarea name="job_${idx}_highlights" rows="4"
+                    placeholder="One per line. Start with action verbs and include metrics when possible."
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+            </div>
+        </div>
+    </div>`;
+
+    container.insertAdjacentHTML('beforeend', html);
+    showRemoveButtons('job');
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function removeJob(btn) {
+    btn.closest('.job-entry').remove();
+    renumberEntries('job');
+}
+
+/* --- Dynamic Education Entries --- */
+function addEducation() {
+    const container = document.getElementById('education-container');
+    const idx = eduCount;
+    eduCount++;
+    document.getElementById('edu_count').value = eduCount;
+
+    const html = `
+    <div class="education-entry border border-gray-200 rounded-lg p-5 mb-4" data-edu-index="${idx}">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-800">Education <span class="edu-number">${idx + 1}</span></h3>
+            <button type="button" onclick="removeEducation(this)" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
+        </div>
+        <div class="space-y-3">
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Degree / Program</label>
+                    <input type="text" name="edu_${idx}_degree" placeholder="B.S. Computer Science"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Institution</label>
+                    <input type="text" name="edu_${idx}_institution" placeholder="University Name"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Years</label>
+                    <input type="text" name="edu_${idx}_years" placeholder="2014 - 2018"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">GPA / Honors (optional)</label>
+                    <input type="text" name="edu_${idx}_honors" placeholder="3.8 GPA, Dean's List"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+    container.insertAdjacentHTML('beforeend', html);
+    showRemoveButtons('edu');
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function removeEducation(btn) {
+    btn.closest('.education-entry').remove();
+    renumberEntries('edu');
+}
+
+/* --- Dynamic Project Entries --- */
+function addProject() {
+    const container = document.getElementById('projects-container');
+    const idx = projCount;
+    projCount++;
+    document.getElementById('proj_count').value = projCount;
+
+    const html = `
+    <div class="project-entry border border-gray-200 rounded-lg p-5 mb-4" data-proj-index="${idx}">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-800">Project <span class="proj-number">${idx + 1}</span></h3>
+            <button type="button" onclick="removeProject(this)" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
+        </div>
+        <div class="space-y-3">
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Project Name</label>
+                    <input type="text" name="proj_${idx}_name" placeholder="Project Name"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Type</label>
+                    <select name="proj_${idx}_type" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                        <option value="work">Work Project</option>
+                        <option value="personal">Personal / Side Project</option>
+                        <option value="open_source">Open Source</option>
+                        <option value="academic">Academic</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                <textarea name="proj_${idx}_description" rows="2" placeholder="Brief description of the project"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Key Achievements (one per line)</label>
+                <textarea name="proj_${idx}_achievements" rows="2" placeholder="Key results or impact"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Technologies Used (comma-separated)</label>
+                <input type="text" name="proj_${idx}_technologies" placeholder="React, Python, PostgreSQL"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+            </div>
+        </div>
+    </div>`;
+
+    container.insertAdjacentHTML('beforeend', html);
+    showRemoveButtons('proj');
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function removeProject(btn) {
+    btn.closest('.project-entry').remove();
+    renumberEntries('proj');
+}
+
+/* --- Dynamic Award Entries --- */
+function addAward() {
+    const container = document.getElementById('awards-container');
+    const idx = awardCount;
+    awardCount++;
+    document.getElementById('award_count').value = awardCount;
+
+    const html = `
+    <div class="award-entry border border-gray-200 rounded-lg p-5 mb-4" data-award-index="${idx}">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-800">Award <span class="award-number">${idx + 1}</span></h3>
+            <button type="button" onclick="removeAward(this)" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
+        </div>
+        <div class="space-y-3">
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Award Name</label>
+                    <input type="text" name="award_${idx}_name" placeholder="Award Name"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                    <input type="text" name="award_${idx}_date" placeholder="Q3 2023"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Organization (optional)</label>
+                <input type="text" name="award_${idx}_organization" placeholder="Organization"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                <textarea name="award_${idx}_description" rows="2" placeholder="Why you received this recognition"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+            </div>
+        </div>
+    </div>`;
+
+    container.insertAdjacentHTML('beforeend', html);
+    showRemoveButtons('award');
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function removeAward(btn) {
+    btn.closest('.award-entry').remove();
+    renumberEntries('award');
+}
+
+/* --- Utilities --- */
+function showRemoveButtons(type) {
+    const entries = document.querySelectorAll(`.${type}-entry`);
+    entries.forEach(entry => {
+        const btn = entry.querySelector(`.remove-${type}-btn`);
+        if (btn) btn.classList.toggle('hidden', entries.length <= 1);
+    });
+}
+
+function renumberEntries(type) {
+    const containerMap = { job: 'jobs-container', edu: 'education-container', proj: 'projects-container', award: 'awards-container' };
+    const container = document.getElementById(containerMap[type]);
+    const entries = container.querySelectorAll(`.${type}-entry`);
+    
+    entries.forEach((entry, i) => {
+        entry.querySelector(`.${type}-number`).textContent = i + 1;
+        entry.setAttribute(`data-${type}-index`, i);
+        entry.querySelectorAll('input, textarea, select').forEach(input => {
+            const oldName = input.name;
+            if (oldName) {
+                input.name = oldName.replace(new RegExp(`${type}_\\d+_`), `${type}_${i}_`);
+            }
+        });
+    });
+    
+    const countMap = { job: 'job_count', edu: 'edu_count', proj: 'proj_count', award: 'award_count' };
+    document.getElementById(countMap[type]).value = entries.length;
+    
+    if (type === 'job') jobCount = entries.length;
+    if (type === 'edu') eduCount = entries.length;
+    if (type === 'proj') projCount = entries.length;
+    if (type === 'award') awardCount = entries.length;
+    
+    showRemoveButtons(type);
 }
 </script>
 {% endblock %}

@@ -331,7 +331,7 @@ async def view_profile(request: Request):
 
 @app.post("/profile/setup", response_class=HTMLResponse)
 async def setup_profile(request: Request):
-    """Handle initial profile setup from wizard"""
+    """Handle initial profile setup from wizard (supports multiple jobs, education, projects, awards)"""
     import yaml
     from fastapi.responses import RedirectResponse
     
@@ -339,7 +339,6 @@ async def setup_profile(request: Request):
         form_data = await request.form()
         form_dict = dict(form_data)
         
-        # Build profile structure
         profile = {
             "personal": {
                 "name": form_dict.get("personal_name", ""),
@@ -347,6 +346,7 @@ async def setup_profile(request: Request):
                 "phone": form_dict.get("personal_phone", ""),
                 "location": form_dict.get("personal_location", ""),
                 "linkedin_url": form_dict.get("personal_linkedin", ""),
+                "website": form_dict.get("personal_website", ""),
                 "summaries": {
                     "default": form_dict.get("personal_summary", "")
                 }
@@ -355,45 +355,87 @@ async def setup_profile(request: Request):
                 "categories": []
             },
             "experience": [],
+            "education": [],
             "projects": [],
             "awards": [],
             "key_metrics": []
         }
         
-        # Add skills categories
-        if form_dict.get("skills_technical"):
-            profile["skills"]["categories"].append({
-                "name": "Technical Skills",
-                "items": [s.strip() for s in form_dict["skills_technical"].split(",") if s.strip()]
-            })
-        if form_dict.get("skills_domain"):
-            profile["skills"]["categories"].append({
-                "name": "Domain Expertise",
-                "items": [s.strip() for s in form_dict["skills_domain"].split(",") if s.strip()]
-            })
-        if form_dict.get("skills_soft"):
-            profile["skills"]["categories"].append({
-                "name": "Soft Skills",
-                "items": [s.strip() for s in form_dict["skills_soft"].split(",") if s.strip()]
-            })
+        # Skills categories
+        for key, name in [("skills_technical", "Technical Skills"), ("skills_domain", "Domain Expertise"), ("skills_soft", "Soft Skills"), ("skills_certifications", "Certifications")]:
+            val = form_dict.get(key, "")
+            if val and val.strip():
+                profile["skills"]["categories"].append({
+                    "name": name,
+                    "items": [s.strip() for s in val.split(",") if s.strip()]
+                })
         
-        # Add work experience
-        if form_dict.get("job_company") and form_dict.get("job_title"):
-            highlights = []
-            if form_dict.get("job_highlights"):
-                highlights = [h.strip() for h in form_dict["job_highlights"].split("\n") if h.strip()]
-            
-            profile["experience"].append({
-                "company": form_dict["job_company"],
-                "location": form_dict.get("job_location", ""),
-                "roles": [{
-                    "title": form_dict["job_title"],
-                    "dates": form_dict.get("job_dates", ""),
-                    "highlights": highlights
-                }]
-            })
+        # Multiple work experience entries
+        job_count = int(form_dict.get("job_count", "0"))
+        for i in range(job_count):
+            company = form_dict.get(f"job_{i}_company", "").strip()
+            title = form_dict.get(f"job_{i}_title", "").strip()
+            if company and title:
+                highlights_raw = form_dict.get(f"job_{i}_highlights", "")
+                highlights = [h.strip() for h in highlights_raw.split("\n") if h.strip()] if highlights_raw else []
+                profile["experience"].append({
+                    "company": company,
+                    "location": form_dict.get(f"job_{i}_location", "").strip(),
+                    "roles": [{
+                        "title": title,
+                        "dates": form_dict.get(f"job_{i}_dates", "").strip(),
+                        "highlights": highlights
+                    }]
+                })
         
-        # Save profile
+        # Multiple education entries
+        edu_count = int(form_dict.get("edu_count", "0"))
+        for i in range(edu_count):
+            degree = form_dict.get(f"edu_{i}_degree", "").strip()
+            institution = form_dict.get(f"edu_{i}_institution", "").strip()
+            if degree or institution:
+                entry = {
+                    "degree": degree,
+                    "institution": institution,
+                    "years": form_dict.get(f"edu_{i}_years", "").strip(),
+                }
+                honors = form_dict.get(f"edu_{i}_honors", "").strip()
+                if honors:
+                    entry["honors"] = honors
+                profile["education"].append(entry)
+        
+        # Multiple project entries
+        proj_count = int(form_dict.get("proj_count", "0"))
+        for i in range(proj_count):
+            name = form_dict.get(f"proj_{i}_name", "").strip()
+            if name:
+                achievements_raw = form_dict.get(f"proj_{i}_achievements", "")
+                achievements = [a.strip() for a in achievements_raw.split("\n") if a.strip()] if achievements_raw else []
+                tech_raw = form_dict.get(f"proj_{i}_technologies", "")
+                technologies = [t.strip() for t in tech_raw.split(",") if t.strip()] if tech_raw else []
+                profile["projects"].append({
+                    "name": name,
+                    "type": form_dict.get(f"proj_{i}_type", "work"),
+                    "description": form_dict.get(f"proj_{i}_description", "").strip(),
+                    "achievements": achievements,
+                    "technologies": technologies
+                })
+        
+        # Multiple award entries
+        award_count = int(form_dict.get("award_count", "0"))
+        for i in range(award_count):
+            name = form_dict.get(f"award_{i}_name", "").strip()
+            if name:
+                entry = {
+                    "name": name,
+                    "date": form_dict.get(f"award_{i}_date", "").strip(),
+                    "description": form_dict.get(f"award_{i}_description", "").strip()
+                }
+                org = form_dict.get(f"award_{i}_organization", "").strip()
+                if org:
+                    entry["organization"] = org
+                profile["awards"].append(entry)
+        
         profile_path = BASE_PATH / "profile.yaml"
         with open(profile_path, "w") as f:
             yaml.dump(profile, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
@@ -409,63 +451,182 @@ async def setup_profile(request: Request):
 
 @app.post("/profile/save", response_class=HTMLResponse)
 async def save_profile_handler(request: Request):
-    """Save updated profile from form data or raw YAML"""
+    """Save updated profile from form data or raw YAML.
+    
+    Handles array-style form fields (name[]) for experience, education,
+    projects, awards, and metrics submitted from the profile editor.
+    """
     import yaml
     
     try:
         form_data = await request.form()
+        # Use getlist for array fields, dict for scalar fields
         form_dict = dict(form_data)
+        
+        def getlist(key):
+            """Extract all values for a repeated form field name."""
+            return [v for k, v in form_data.multi_items() if k == key]
         
         # Check if raw YAML was submitted
         if "profile_yaml" in form_dict and form_dict.get("profile_yaml", "").strip():
-            # Raw YAML mode - validate and save directly
             profile_yaml = form_dict["profile_yaml"]
-            profile = yaml.safe_load(profile_yaml)
+            yaml.safe_load(profile_yaml)  # validate
             
             profile_path = BASE_PATH / "profile.yaml"
             with open(profile_path, "w") as f:
                 f.write(profile_yaml)
         else:
-            # Form mode - load existing, update fields, save
             profile = load_profile() or {}
             
-            # Update personal info
+            # --- Personal info ---
             if "personal" not in profile:
                 profile["personal"] = {}
             
-            if "personal_name" in form_dict:
-                profile["personal"]["name"] = form_dict["personal_name"]
-            if "personal_location" in form_dict:
-                profile["personal"]["location"] = form_dict["personal_location"]
-            if "personal_email" in form_dict:
-                profile["personal"]["email"] = form_dict["personal_email"]
-            if "personal_phone" in form_dict:
-                profile["personal"]["phone"] = form_dict["personal_phone"]
-            if "personal_linkedin" in form_dict:
-                profile["personal"]["linkedin_url"] = form_dict["personal_linkedin"]
+            for form_key, profile_key in [
+                ("personal_name", "name"),
+                ("personal_location", "location"),
+                ("personal_email", "email"),
+                ("personal_phone", "phone"),
+                ("personal_linkedin", "linkedin_url"),
+                ("personal_website", "website"),
+            ]:
+                if form_key in form_dict:
+                    profile["personal"][profile_key] = form_dict[form_key]
             
-            # Update summaries
+            # --- Summaries ---
             if "summaries" not in profile["personal"]:
                 profile["personal"]["summaries"] = {}
             
-            if "personal_summary" in form_dict:
-                profile["personal"]["summaries"]["default"] = form_dict["personal_summary"]
-            if "summary_automation" in form_dict:
-                profile["personal"]["summaries"]["automation_focused"] = form_dict["summary_automation"]
-            if "summary_ai" in form_dict:
-                profile["personal"]["summaries"]["ai_focused"] = form_dict["summary_ai"]
-            if "summary_support" in form_dict:
-                profile["personal"]["summaries"]["support_focused"] = form_dict["summary_support"]
+            for form_key, summary_key in [
+                ("personal_summary", "default"),
+                ("summary_automation", "automation_focused"),
+                ("summary_ai", "ai_focused"),
+                ("summary_support", "support_focused"),
+            ]:
+                if form_key in form_dict:
+                    profile["personal"]["summaries"][summary_key] = form_dict[form_key]
             
-            # Update skills (comma-separated lists)
+            # --- Skills (comma-separated lists) ---
             if "skills" in profile and "categories" in profile["skills"]:
                 for i, category in enumerate(profile["skills"]["categories"]):
                     form_key = f"skills_{i}"
                     if form_key in form_dict and form_dict[form_key]:
-                        skills_list = [s.strip() for s in form_dict[form_key].split(",") if s.strip()]
-                        profile["skills"]["categories"][i]["items"] = skills_list
+                        profile["skills"]["categories"][i]["items"] = [
+                            s.strip() for s in form_dict[form_key].split(",") if s.strip()
+                        ]
             
-            # Save updated profile
+            # --- Experience (array fields) ---
+            companies = getlist("exp_company[]")
+            titles = getlist("exp_title[]")
+            dates_list = getlist("exp_dates[]")
+            locations = getlist("exp_location[]")
+            highlights_list = getlist("exp_highlights[]")
+            
+            if companies:
+                profile["experience"] = []
+                for i, company in enumerate(companies):
+                    company = company.strip()
+                    title = titles[i].strip() if i < len(titles) else ""
+                    if not company and not title:
+                        continue
+                    highlights_raw = highlights_list[i] if i < len(highlights_list) else ""
+                    highlights = [h.strip() for h in highlights_raw.split("\n") if h.strip()]
+                    profile["experience"].append({
+                        "company": company,
+                        "location": locations[i].strip() if i < len(locations) else "",
+                        "roles": [{
+                            "title": title,
+                            "dates": dates_list[i].strip() if i < len(dates_list) else "",
+                            "highlights": highlights,
+                        }]
+                    })
+            
+            # --- Education (array fields) ---
+            edu_degrees = getlist("education_degree[]")
+            edu_institutions = getlist("education_institution[]")
+            edu_years = getlist("education_years[]")
+            edu_honors = getlist("education_honors[]")
+            
+            if edu_degrees:
+                profile["education"] = []
+                for i, degree in enumerate(edu_degrees):
+                    degree = degree.strip()
+                    institution = edu_institutions[i].strip() if i < len(edu_institutions) else ""
+                    if not degree and not institution:
+                        continue
+                    entry = {
+                        "degree": degree,
+                        "institution": institution,
+                        "years": edu_years[i].strip() if i < len(edu_years) else "",
+                    }
+                    honors = edu_honors[i].strip() if i < len(edu_honors) else ""
+                    if honors:
+                        entry["honors"] = honors
+                    profile["education"].append(entry)
+            
+            # --- Projects (array fields) ---
+            proj_names = getlist("project_name[]")
+            proj_types = getlist("project_type[]")
+            proj_descriptions = getlist("project_description[]")
+            proj_achievements = getlist("project_achievements[]")
+            proj_technologies = getlist("project_technologies[]")
+            
+            if proj_names:
+                profile["projects"] = []
+                for i, name in enumerate(proj_names):
+                    name = name.strip()
+                    if not name:
+                        continue
+                    ach_raw = proj_achievements[i] if i < len(proj_achievements) else ""
+                    tech_raw = proj_technologies[i] if i < len(proj_technologies) else ""
+                    profile["projects"].append({
+                        "name": name,
+                        "type": proj_types[i] if i < len(proj_types) else "work",
+                        "description": proj_descriptions[i].strip() if i < len(proj_descriptions) else "",
+                        "achievements": [a.strip() for a in ach_raw.split("\n") if a.strip()],
+                        "technologies": [t.strip() for t in tech_raw.split(",") if t.strip()],
+                    })
+            
+            # --- Awards (array fields) ---
+            award_names = getlist("award_name[]")
+            award_dates = getlist("award_date[]")
+            award_orgs = getlist("award_organization[]")
+            award_descs = getlist("award_description[]")
+            
+            if award_names:
+                profile["awards"] = []
+                for i, name in enumerate(award_names):
+                    name = name.strip()
+                    if not name:
+                        continue
+                    entry = {
+                        "name": name,
+                        "date": award_dates[i].strip() if i < len(award_dates) else "",
+                        "description": award_descs[i].strip() if i < len(award_descs) else "",
+                    }
+                    org = award_orgs[i].strip() if i < len(award_orgs) else ""
+                    if org:
+                        entry["organization"] = org
+                    profile["awards"].append(entry)
+            
+            # --- Key Metrics (array fields) ---
+            metric_names = getlist("metric_name[]")
+            metric_values = getlist("metric_value[]")
+            metric_contexts = getlist("metric_context[]")
+            
+            if metric_names:
+                profile["key_metrics"] = []
+                for i, name in enumerate(metric_names):
+                    name = name.strip()
+                    if not name:
+                        continue
+                    profile["key_metrics"].append({
+                        "metric": name,
+                        "value": metric_values[i].strip() if i < len(metric_values) else "",
+                        "context": metric_contexts[i].strip() if i < len(metric_contexts) else "",
+                    })
+            
+            # Save
             profile_path = BASE_PATH / "profile.yaml"
             with open(profile_path, "w") as f:
                 yaml.dump(profile, f, default_flow_style=False, allow_unicode=True, sort_keys=False)

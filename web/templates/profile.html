@@ -9,17 +9,53 @@
         <h1 class="text-2xl font-bold text-gray-900">Professional Profile</h1>
         <p class="mt-1 text-sm text-gray-500">
             Your master repository of professional details. The AI uses this to tailor resumes and cover letters.
+            <strong>The more complete your profile, the better the results.</strong>
         </p>
     </div>
 
+    <!-- Profile Completeness Indicator -->
+    {% set sections_filled = [] %}
+    {% if profile.get('personal', {}).get('name') %}{% set _ = sections_filled.append('personal') %}{% endif %}
+    {% if profile.get('experience', []) | length > 0 %}{% set _ = sections_filled.append('experience') %}{% endif %}
+    {% if profile.get('skills', {}).get('categories', []) | length > 0 %}{% set _ = sections_filled.append('skills') %}{% endif %}
+    {% if profile.get('education', []) | length > 0 %}{% set _ = sections_filled.append('education') %}{% endif %}
+    {% if profile.get('projects', []) | length > 0 %}{% set _ = sections_filled.append('projects') %}{% endif %}
+    {% if profile.get('awards', []) | length > 0 %}{% set _ = sections_filled.append('awards') %}{% endif %}
+    {% set completeness = (sections_filled | length / 6 * 100) | int %}
+    
+    {% if completeness < 100 %}
+    <div class="mb-6 bg-primary-50 border border-primary-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-primary-800">Profile Completeness</span>
+            <span class="text-sm font-semibold text-primary-700">{{ completeness }}%</span>
+        </div>
+        <div class="h-2 bg-primary-100 rounded-full overflow-hidden">
+            <div class="h-full bg-primary-600 rounded-full transition-all" style="width: {{ completeness }}%"></div>
+        </div>
+        <p class="mt-2 text-xs text-primary-600">
+            {% if 'experience' not in sections_filled %}Add your work experience. {% endif %}
+            {% if 'education' not in sections_filled %}Add your education. {% endif %}
+            {% if 'projects' not in sections_filled %}Add some projects. {% endif %}
+            {% if 'awards' not in sections_filled %}Add awards or recognition. {% endif %}
+            Complete profiles produce significantly better tailored resumes.
+        </p>
+    </div>
+    {% endif %}
+
     <!-- Tabs -->
     <div class="border-b border-gray-200 mb-6">
-        <nav class="-mb-px flex space-x-8" id="profile-tabs">
+        <nav class="-mb-px flex space-x-8 overflow-x-auto" id="profile-tabs">
             <button onclick="showTab('personal')" class="tab-btn active border-primary-500 text-primary-600 whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium" data-tab="personal">
                 Personal Info
             </button>
             <button onclick="showTab('experience')" class="tab-btn border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium" data-tab="experience">
                 Experience
+                {% if profile.get('experience', []) | length > 0 %}
+                <span class="ml-1 text-xs bg-gray-100 text-gray-600 rounded-full px-1.5 py-0.5">{{ profile.get('experience', []) | length }}</span>
+                {% endif %}
+            </button>
+            <button onclick="showTab('education')" class="tab-btn border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium" data-tab="education">
+                Education
             </button>
             <button onclick="showTab('skills')" class="tab-btn border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium" data-tab="skills">
                 Skills
@@ -37,7 +73,8 @@
     </div>
 
     <form hx-post="/profile/save" hx-target="#save-result" hx-swap="innerHTML" id="profile-form">
-        <!-- Personal Info Tab -->
+
+        <!-- ===== Personal Info Tab ===== -->
         <div id="tab-personal" class="tab-content">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
                 <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -68,10 +105,16 @@
                         <input type="tel" name="personal_phone" value="{{ profile.get('personal', {}).get('phone', '') }}"
                             class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
                     </div>
-                    <div class="sm:col-span-2">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
                         <input type="url" name="personal_linkedin" value="{{ profile.get('personal', {}).get('linkedin_url', '') }}"
                             placeholder="https://linkedin.com/in/yourprofile"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Portfolio / Website</label>
+                        <input type="url" name="personal_website" value="{{ profile.get('personal', {}).get('website', '') }}"
+                            placeholder="https://yoursite.com"
                             class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
                     </div>
                 </div>
@@ -112,58 +155,140 @@
             </div>
         </div>
 
-        <!-- Experience Tab -->
+        <!-- ===== Experience Tab (Editable) ===== -->
         <div id="tab-experience" class="tab-content hidden">
-            <div class="space-y-6">
-                {% for job in profile.get('experience', []) %}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">{{ job.company }}</h3>
-                            <p class="text-sm text-gray-500">{{ job.location }}</p>
-                        </div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">Work Experience</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Add every position you've held &mdash; the AI selects the most relevant for each application</p>
                     </div>
-                    
+                </div>
+
+                <div id="experience-entries">
+                    {% for job in profile.get('experience', []) %}
                     {% for role in job.get('roles', []) %}
-                    <div class="{% if not loop.first %}mt-6 pt-6 border-t border-gray-100{% endif %}">
-                        <div class="flex items-center justify-between mb-3">
-                            <h4 class="font-medium text-gray-900">{{ role.title }}</h4>
-                            <span class="text-sm text-gray-500">{{ role.dates }}</span>
+                    <div class="exp-entry bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-800">Position {{ loop.index }}</h3>
+                            <button type="button" onclick="this.closest('.exp-entry').remove()" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
                         </div>
-                        <ul class="space-y-2">
-                            {% for highlight in role.get('highlights', []) %}
-                            <li class="flex items-start gap-2 text-sm text-gray-600">
-                                <svg class="h-4 w-4 text-primary-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                </svg>
-                                {{ highlight }}
-                            </li>
-                            {% endfor %}
-                        </ul>
+                        <div class="space-y-4">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Company Name</label>
+                                    <input type="text" name="exp_company[]" value="{{ job.company }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Job Title</label>
+                                    <input type="text" name="exp_title[]" value="{{ role.title }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Dates</label>
+                                    <input type="text" name="exp_dates[]" value="{{ role.dates }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Location</label>
+                                    <input type="text" name="exp_location[]" value="{{ job.location }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Key Accomplishments (one per line)</label>
+                                <textarea name="exp_highlights[]" rows="5"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                                >{{ role.get('highlights', []) | join('\n') }}</textarea>
+                            </div>
+                        </div>
                     </div>
                     {% endfor %}
+                    {% endfor %}
                 </div>
-                {% endfor %}
-                
-                <div class="text-center py-4">
-                    <p class="text-sm text-gray-500 mb-2">To add or edit work experience, use the Raw YAML tab</p>
-                    <button type="button" onclick="showTab('raw')" class="text-primary-600 hover:text-primary-500 text-sm font-medium">
-                        Edit in YAML
-                    </button>
-                </div>
+
+                <button type="button" onclick="addExperienceEntry()"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Add Position
+                </button>
+                <p class="text-center text-xs text-gray-400 mt-1">
+                    Include internships, freelance, part-time, and volunteer roles &mdash; they all contain valuable experience
+                </p>
             </div>
         </div>
 
-        <!-- Skills Tab -->
+        <!-- ===== Education Tab (Editable) ===== -->
+        <div id="tab-education" class="tab-content hidden">
+            <div class="space-y-4">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Education</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Degrees, bootcamps, courses, and training programs</p>
+                </div>
+
+                <div id="education-entries">
+                    {% for edu in profile.get('education', []) %}
+                    <div class="edu-entry bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-800">Education {{ loop.index }}</h3>
+                            <button type="button" onclick="this.closest('.edu-entry').remove()" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Degree / Program</label>
+                                    <input type="text" name="education_degree[]" value="{{ edu.degree }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Institution</label>
+                                    <input type="text" name="education_institution[]" value="{{ edu.institution }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Years</label>
+                                    <input type="text" name="education_years[]" value="{{ edu.years }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">GPA / Honors</label>
+                                    <input type="text" name="education_honors[]" value="{{ edu.get('honors', '') }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" onclick="addEducationEntry()"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Add Education
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== Skills Tab ===== -->
         <div id="tab-skills" class="tab-content hidden">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <h2 class="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
                     <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     Skills & Technologies
                 </h2>
+                <p class="text-xs text-gray-500 mb-6">List every skill you have &mdash; the AI highlights the most relevant ones per application</p>
                 
                 <div class="space-y-6">
                     {% for category in profile.get('skills', {}).get('categories', []) %}
@@ -182,106 +307,165 @@
                     <h3 class="text-sm font-medium text-gray-900 mb-4">Key Metrics & Achievements</h3>
                     <p class="text-xs text-gray-500 mb-4">Quantifiable accomplishments the AI can highlight</p>
                     
-                    <div class="space-y-4">
+                    <div id="metrics-entries" class="space-y-4">
                         {% for metric in profile.get('key_metrics', []) %}
-                        <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                            <div class="flex-1">
-                                <span class="text-sm font-medium text-gray-900">{{ metric.metric }}</span>
-                                <span class="text-sm text-gray-500"> - {{ metric.context }}</span>
+                        <div class="metric-entry flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-1 grid gap-3 sm:grid-cols-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Metric</label>
+                                    <input type="text" name="metric_name[]" value="{{ metric.metric }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Value</label>
+                                    <input type="text" name="metric_value[]" value="{{ metric.value }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Context</label>
+                                    <input type="text" name="metric_context[]" value="{{ metric.context }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
                             </div>
-                            <div class="text-lg font-bold text-primary-600">{{ metric.value }}</div>
+                            <button type="button" onclick="this.closest('.metric-entry').remove()" class="text-gray-400 hover:text-red-500 mt-5">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
                         </div>
                         {% endfor %}
                     </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Projects Tab -->
-        <div id="tab-projects" class="tab-content hidden">
-            <div class="space-y-6">
-                {% for project in profile.get('projects', []) %}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <div class="flex items-start justify-between mb-3">
-                        <h3 class="text-lg font-semibold text-gray-900">{{ project.name }}</h3>
-                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if project.type == 'work' %}bg-blue-100 text-blue-700{% else %}bg-green-100 text-green-700{% endif %}">
-                            {{ project.type | capitalize }}
-                        </span>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-4">{{ project.description }}</p>
-                    
-                    {% if project.achievements %}
-                    <div class="mb-4">
-                        <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Achievements</h4>
-                        <ul class="space-y-1">
-                            {% for achievement in project.achievements %}
-                            <li class="flex items-start gap-2 text-sm text-gray-600">
-                                <svg class="h-4 w-4 text-primary-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                </svg>
-                                {{ achievement }}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-                    
-                    {% if project.technologies %}
-                    <div class="flex flex-wrap gap-1">
-                        {% for tech in project.technologies %}
-                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                            {{ tech }}
-                        </span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-                
-                <div class="text-center py-4">
-                    <p class="text-sm text-gray-500 mb-2">To add or edit projects, use the Raw YAML tab</p>
-                    <button type="button" onclick="showTab('raw')" class="text-primary-600 hover:text-primary-500 text-sm font-medium">
-                        Edit in YAML
+                    <button type="button" onclick="addMetricEntry()"
+                        class="mt-3 w-full py-2 border-2 border-dashed border-gray-200 rounded-lg text-xs font-medium text-gray-500 hover:border-primary-300 hover:text-primary-600 transition-colors flex items-center justify-center gap-1">
+                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        Add Metric
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Awards Tab -->
+        <!-- ===== Projects Tab (Editable) ===== -->
+        <div id="tab-projects" class="tab-content hidden">
+            <div class="space-y-4">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Projects</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Side projects, open-source work, and notable initiatives that showcase your skills</p>
+                </div>
+
+                <div id="project-entries">
+                    {% for project in profile.get('projects', []) %}
+                    <div class="proj-entry bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-800">Project {{ loop.index }}</h3>
+                            <button type="button" onclick="this.closest('.proj-entry').remove()" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Project Name</label>
+                                    <input type="text" name="project_name[]" value="{{ project.name }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Type</label>
+                                    <select name="project_type[]" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                        <option value="work" {% if project.type == 'work' %}selected{% endif %}>Work Project</option>
+                                        <option value="personal" {% if project.type == 'personal' %}selected{% endif %}>Personal / Side Project</option>
+                                        <option value="open_source" {% if project.type == 'open_source' %}selected{% endif %}>Open Source</option>
+                                        <option value="academic" {% if project.type == 'academic' %}selected{% endif %}>Academic</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                                <textarea name="project_description[]" rows="2"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                                >{{ project.description }}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Key Achievements (one per line)</label>
+                                <textarea name="project_achievements[]" rows="3"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                                >{{ project.get('achievements', []) | join('\n') }}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Technologies (comma-separated)</label>
+                                <input type="text" name="project_technologies[]" value="{{ project.get('technologies', []) | join(', ') }}"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" onclick="addProjectEntry()"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Add Project
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== Awards Tab (Editable) ===== -->
         <div id="tab-awards" class="tab-content hidden">
             <div class="space-y-4">
-                {% for award in profile.get('awards', []) %}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                            <svg class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
-                            </svg>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Awards & Recognition</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Awards, honors, promotions, publications, and other recognition</p>
+                </div>
+
+                <div id="award-entries">
+                    {% for award in profile.get('awards', []) %}
+                    <div class="award-entry bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-800">Award {{ loop.index }}</h3>
+                            <button type="button" onclick="this.closest('.award-entry').remove()" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
                         </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-semibold text-gray-900">{{ award.name }}</h3>
-                                <span class="text-sm text-gray-500">{{ award.date }}</span>
+                        <div class="space-y-4">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Award Name</label>
+                                    <input type="text" name="award_name[]" value="{{ award.name }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                                    <input type="text" name="award_date[]" value="{{ award.date }}"
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                                </div>
                             </div>
-                            {% if award.organization %}
-                            <p class="text-sm text-gray-500">{{ award.organization }}</p>
-                            {% endif %}
-                            <p class="mt-2 text-sm text-gray-600">{{ award.description }}</p>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Organization</label>
+                                <input type="text" name="award_organization[]" value="{{ award.get('organization', '') }}"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                                <textarea name="award_description[]" rows="2"
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                                >{{ award.description }}</textarea>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-                
-                <div class="text-center py-4">
-                    <p class="text-sm text-gray-500 mb-2">To add or edit awards, use the Raw YAML tab</p>
-                    <button type="button" onclick="showTab('raw')" class="text-primary-600 hover:text-primary-500 text-sm font-medium">
-                        Edit in YAML
-                    </button>
-                </div>
+
+                <button type="button" onclick="addAwardEntry()"
+                    class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Add Award
+                </button>
             </div>
         </div>
 
-        <!-- Raw YAML Tab -->
+        <!-- ===== Raw YAML Tab ===== -->
         <div id="tab-raw" class="tab-content hidden">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
@@ -330,24 +514,215 @@
 
 <script>
 function showTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(el => {
-        el.classList.add('hidden');
-    });
-    
-    // Show selected tab content
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.getElementById('tab-' + tabName).classList.remove('hidden');
     
-    // Update tab button styles
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active', 'border-primary-500', 'text-primary-600');
         btn.classList.add('border-transparent', 'text-gray-500');
     });
     
-    // Highlight active tab
     const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
     activeBtn.classList.add('active', 'border-primary-500', 'text-primary-600');
     activeBtn.classList.remove('border-transparent', 'text-gray-500');
+}
+
+function addExperienceEntry() {
+    const container = document.getElementById('experience-entries');
+    const count = container.querySelectorAll('.exp-entry').length + 1;
+    const html = `
+    <div class="exp-entry bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-800">New Position</h3>
+            <button type="button" onclick="this.closest('.exp-entry').remove()" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
+        </div>
+        <div class="space-y-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Company Name</label>
+                    <input type="text" name="exp_company[]" placeholder="Company Name"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Job Title</label>
+                    <input type="text" name="exp_title[]" placeholder="Job Title"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Dates</label>
+                    <input type="text" name="exp_dates[]" placeholder="Start - End"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Location</label>
+                    <input type="text" name="exp_location[]" placeholder="City, State"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Key Accomplishments (one per line)</label>
+                <textarea name="exp_highlights[]" rows="5" placeholder="One accomplishment per line. Start with action verbs."
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+            </div>
+        </div>
+    </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function addEducationEntry() {
+    const container = document.getElementById('education-entries');
+    const html = `
+    <div class="edu-entry bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-800">New Education</h3>
+            <button type="button" onclick="this.closest('.edu-entry').remove()" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
+        </div>
+        <div class="space-y-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Degree / Program</label>
+                    <input type="text" name="education_degree[]" placeholder="B.S. Computer Science"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Institution</label>
+                    <input type="text" name="education_institution[]" placeholder="University Name"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Years</label>
+                    <input type="text" name="education_years[]" placeholder="2014 - 2018"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">GPA / Honors</label>
+                    <input type="text" name="education_honors[]" placeholder="3.8 GPA, Dean's List"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+            </div>
+        </div>
+    </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function addProjectEntry() {
+    const container = document.getElementById('project-entries');
+    const html = `
+    <div class="proj-entry bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-800">New Project</h3>
+            <button type="button" onclick="this.closest('.proj-entry').remove()" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
+        </div>
+        <div class="space-y-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Project Name</label>
+                    <input type="text" name="project_name[]" placeholder="Project Name"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Type</label>
+                    <select name="project_type[]" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                        <option value="work">Work Project</option>
+                        <option value="personal">Personal / Side Project</option>
+                        <option value="open_source">Open Source</option>
+                        <option value="academic">Academic</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                <textarea name="project_description[]" rows="2" placeholder="Brief description"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Key Achievements (one per line)</label>
+                <textarea name="project_achievements[]" rows="3" placeholder="Key results or impact"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Technologies (comma-separated)</label>
+                <input type="text" name="project_technologies[]" placeholder="React, Python, PostgreSQL"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+            </div>
+        </div>
+    </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function addAwardEntry() {
+    const container = document.getElementById('award-entries');
+    const html = `
+    <div class="award-entry bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-800">New Award</h3>
+            <button type="button" onclick="this.closest('.award-entry').remove()" class="text-gray-400 hover:text-red-500 text-xs">Remove</button>
+        </div>
+        <div class="space-y-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Award Name</label>
+                    <input type="text" name="award_name[]" placeholder="Award Name"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                    <input type="text" name="award_date[]" placeholder="Q3 2023"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Organization</label>
+                <input type="text" name="award_organization[]" placeholder="Organization"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                <textarea name="award_description[]" rows="2" placeholder="Why you received this recognition"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"></textarea>
+            </div>
+        </div>
+    </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function addMetricEntry() {
+    const container = document.getElementById('metrics-entries');
+    const html = `
+    <div class="metric-entry flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+        <div class="flex-1 grid gap-3 sm:grid-cols-3">
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Metric</label>
+                <input type="text" name="metric_name[]" placeholder="Revenue Growth"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Value</label>
+                <input type="text" name="metric_value[]" placeholder="40%"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Context</label>
+                <input type="text" name="metric_context[]" placeholder="Year-over-year growth"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+            </div>
+        </div>
+        <button type="button" onclick="this.closest('.metric-entry').remove()" class="text-gray-400 hover:text-red-500 mt-5">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>`;
+    container.insertAdjacentHTML('beforeend', html);
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 </script>
 {% endblock %}
