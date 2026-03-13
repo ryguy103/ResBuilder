@@ -1,0 +1,245 @@
+# =============================================================================
+# MASTER PROFESSIONAL PROFILE
+# =============================================================================
+# This file contains all your professional details. The AI uses this as a
+# comprehensive source when tailoring resumes and cover letters.
+#
+# GETTING STARTED:
+#   1. Copy this file to profile.yaml:  cp profile.yaml.example profile.yaml
+#   2. Replace the placeholder data with your own information
+#   3. Or skip this and use the web UI at http://localhost:8000/profile
+#
+# TIP: The more detail you include, the better the AI can tailor your
+# applications. Add EVERY job, skill, and achievement you can think of.
+# =============================================================================
+
+personal:
+  name: Jane Smith
+  location: Austin, TX
+  phone: "(555) 123-4567"
+  email: jane.smith@example.com
+  linkedin: linkedin.com/in/janesmith
+  linkedin_url: https://www.linkedin.com/in/janesmith/
+  website: https://janesmith.dev
+
+  # Different summary variations for different role types.
+  # The AI will pick the most relevant one based on the job description.
+  summaries:
+    default: >
+      Full-stack engineer with 7+ years of experience building scalable web
+      applications and leading cross-functional teams. Passionate about clean
+      architecture, developer experience, and shipping products that users love.
+      Seeking a senior engineering role at a mission-driven company.
+
+    automation_focused: >
+      Platform engineer with deep experience in CI/CD pipelines, infrastructure
+      automation, and developer tooling. Built internal platforms serving 200+
+      engineers, reducing deployment times by 80% and incident response by 60%.
+
+    ai_focused: >
+      Software engineer with a focus on applied AI/ML, building intelligent
+      features powered by large language models. Experience integrating LLM APIs,
+      designing prompt pipelines, and shipping AI-powered products to production.
+
+    support_focused: >
+      Technical leader experienced in building developer tools and support
+      systems. Combines strong engineering skills with empathy for end users,
+      having built self-service platforms that reduced support tickets by 45%.
+
+experience:
+  - company: Acme Corp
+    location: Austin, TX (Hybrid)
+    roles:
+      - title: Senior Software Engineer
+        dates: Mar 2022 – Present
+        highlights:
+          - Led migration of monolithic Rails app to microservices architecture, reducing deploy times from 45 min to 5 min
+          - Designed and built real-time notification system handling 2M+ events/day using Kafka and WebSockets
+          - Mentored 3 junior engineers through structured pairing and code review, all promoted within 12 months
+          - Reduced P95 API latency by 60% by implementing Redis caching layer and query optimization
+          - Drove adoption of TypeScript across frontend codebase, reducing production bugs by 35%
+
+  - company: StartupXYZ
+    location: San Francisco, CA (Remote)
+    roles:
+      - title: Software Engineer II
+        dates: Jun 2019 – Feb 2022
+        highlights:
+          - Built customer-facing analytics dashboard from scratch using React, D3.js, and PostgreSQL
+          - Implemented OAuth 2.0 / SAML SSO integration supporting 50+ enterprise customers
+          - Created automated data pipeline processing 10GB+ daily using Airflow and Python
+          - Contributed to open-source SDK used by 5,000+ developers (github.com/example/sdk)
+
+      - title: Software Engineer I
+        dates: Jan 2018 – Jun 2019
+        highlights:
+          - Developed RESTful APIs serving 100K+ daily active users using Python/Flask
+          - Built internal admin tool that reduced customer onboarding time from 2 days to 2 hours
+          - Wrote comprehensive test suite achieving 92% code coverage across core services
+
+  - company: TechConsulting Inc.
+    location: Portland, OR
+    roles:
+      - title: Junior Developer
+        dates: Jun 2016 – Dec 2017
+        highlights:
+          - Built responsive web applications for 8+ clients using React and Node.js
+          - Implemented CI/CD pipelines using Jenkins and Docker, reducing release cycles from monthly to weekly
+          - Created reusable component library adopted across 5 client projects
+
+skills:
+  categories:
+    - name: Languages & Frameworks
+      items:
+        - Python
+        - TypeScript
+        - JavaScript
+        - React
+        - Node.js
+        - Flask
+        - Django
+        - Ruby on Rails
+        - SQL
+        - GraphQL
+
+    - name: Infrastructure & Tools
+      items:
+        - AWS (EC2, S3, Lambda, RDS)
+        - Docker
+        - Kubernetes
+        - Terraform
+        - PostgreSQL
+        - Redis
+        - Kafka
+        - GitHub Actions
+        - Datadog
+
+    - name: Practices & Domains
+      items:
+        - Microservices Architecture
+        - CI/CD Pipeline Design
+        - API Design (REST, GraphQL)
+        - Database Optimization
+        - System Design
+        - Agile/Scrum
+        - Technical Writing
+
+    - name: Soft Skills
+      items:
+        - Technical Mentoring
+        - Cross-functional Collaboration
+        - Project Leadership
+        - Stakeholder Communication
+        - Code Review
+        - Incident Response
+
+  programming:
+    - Python
+    - TypeScript
+    - JavaScript
+    - SQL
+    - Ruby
+
+  soft_skills:
+    - Technical Mentoring
+    - Cross-functional Collaboration
+    - Project Leadership
+
+projects:
+  - name: DevDash
+    type: personal
+    description: >
+      Open-source developer dashboard that aggregates GitHub PRs, CI status,
+      and deployment health into a single real-time view.
+    achievements:
+      - 1,200+ GitHub stars and featured in JavaScript Weekly
+      - Used internally by 3 companies for engineering team standups
+    technologies:
+      - React
+      - TypeScript
+      - WebSockets
+      - GitHub API
+
+  - name: Customer Health Score System
+    type: work
+    description: >
+      ML-powered system that predicts customer churn risk by analyzing usage
+      patterns, support interactions, and billing data.
+    achievements:
+      - Identified 85% of at-risk accounts 30 days before churn
+      - Directly contributed to $2M ARR retention in first year
+    technologies:
+      - Python
+      - scikit-learn
+      - PostgreSQL
+      - Looker
+
+  - name: API Gateway Rebuild
+    type: work
+    description: >
+      Led initiative to replace legacy API gateway with a modern solution
+      supporting rate limiting, auth, and observability out of the box.
+    achievements:
+      - Reduced API error rate from 2.3% to 0.1%
+      - Cut infrastructure costs by 40% through right-sizing
+    technologies:
+      - Kong
+      - Terraform
+      - Datadog
+      - Python
+
+awards:
+  - name: Engineering Excellence Award
+    date: Q4 2023
+    organization: Acme Corp
+    description: Recognized for leading the microservices migration ahead of schedule and under budget
+
+  - name: Hackathon Winner - Best Developer Tool
+    date: Sep 2022
+    organization: Acme Corp
+    description: Built an AI-powered code review assistant in 48 hours that was later adopted as an internal tool
+
+  - name: Top Contributor
+    date: "2021"
+    organization: StartupXYZ
+    description: Highest number of shipped features and code reviews across the engineering team
+
+education:
+  - degree: B.S. Computer Science
+    institution: University of Texas at Austin
+    years: 2012 – 2016
+
+  - degree: Full-Stack Web Development Certificate
+    institution: freeCodeCamp
+    years: "2015"
+
+key_metrics:
+  - metric: API Latency Reduction
+    value: "60%"
+    context: P95 latency improvement through caching and query optimization
+
+  - metric: Deploy Time
+    value: 45min → 5min
+    context: Microservices migration eliminated monolith bottleneck
+
+  - metric: Customer Retention
+    value: $2M ARR
+    context: ML-powered churn prediction system identified at-risk accounts
+
+  - metric: Bug Reduction
+    value: "35%"
+    context: TypeScript adoption across frontend codebase
+
+preferences:
+  work_style:
+    - Remote-first
+    - Async communication
+    - Documentation-driven
+  interests:
+    - Developer tooling
+    - Applied AI/ML
+    - Open source
+  looking_for:
+    - Senior or Staff engineering roles
+    - Mission-driven companies
+    - Strong engineering culture

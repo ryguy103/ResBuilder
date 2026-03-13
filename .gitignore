@@ -1,3 +1,18 @@
+# =============================================================================
+# Personal data (use .example files as templates)
+# =============================================================================
+profile.yaml
+resume.md
+resume.txt
+cover-letter.md
+cover-letter.txt
+cover-letter.tex
+resume.tex
+resume-public.tex
+
+# Environment / secrets
+.env
+
 # Output directories
 output/
 companies/
@@ -23,16 +38,20 @@ companies/
 \#*\#
 .#*
 
-# Environment / secrets
-.env
-
 # OS files
 .DS_Store
 Thumbs.db
 
-# Keep these source files
-!resume.md
-!resume.txt
-
 # Job description file (changes per application, don't commit)
 jd.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.spec
+venv/
+.venv/

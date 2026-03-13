@@ -43,6 +43,18 @@ except ImportError:
 BASE_PATH = Path(__file__).parent
 
 
+def _copy_example_files():
+    """On first run, copy .example files so new users have a starting point."""
+    import shutil
+    for name in ("profile.yaml", "resume.md"):
+        target = BASE_PATH / name
+        source = BASE_PATH / f"{name}.example"
+        if not target.exists() and source.exists():
+            shutil.copy2(source, target)
+
+_copy_example_files()
+
+
 def get_api_key() -> str:
     """Get Anthropic API key from environment"""
     key = os.environ.get("ANTHROPIC_API_KEY")
@@ -160,6 +172,12 @@ def read_master_resume() -> str:
     
     # Fall back to resume.md
     resume_path = BASE_PATH / "resume.md"
+    if not resume_path.exists():
+        raise FileNotFoundError(
+            "No profile.yaml or resume.md found. "
+            "Set up your profile at http://localhost:8000/profile or copy the example: "
+            "cp profile.yaml.example profile.yaml"
+        )
     with open(resume_path, "r") as f:
         return f.read()
 
