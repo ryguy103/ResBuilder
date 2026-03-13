@@ -10,6 +10,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Generator
 
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent / ".env")
+
 try:
     import yaml
     HAS_YAML = True
