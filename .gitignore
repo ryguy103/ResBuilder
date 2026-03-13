@@ -1,0 +1,58 @@
+# =============================================================================
+# Personal data (use .example files as templates)
+# =============================================================================
+profile.yaml
+resume.md
+resume.txt
+cover-letter.md
+cover-letter.txt
+cover-letter.tex
+resume.tex
+resume-public.tex
+README.org
+
+# Environment / secrets
+.env
+
+# Output directories
+output/
+companies/
+
+# LaTeX intermediate files
+*.aux
+*.log
+*.out
+*.toc
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+
+# Generated PDFs (we regenerate from source)
+*.pdf
+
+# Emacs backup files
+*~
+\#*\#
+.#*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Job description file (changes per application, don't commit)
+jd.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.spec
+venv/
+.venv/

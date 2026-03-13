@@ -1,0 +1,71 @@
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div class="flex items-start gap-3 p-4 bg-red-50 rounded-lg border border-red-200 mb-6">
+        <svg class="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+        <div>
+            <p class="text-sm font-medium text-red-800">Failed to scrape URL</p>
+            <p class="text-xs text-red-600 mt-0.5">{{ error }}</p>
+        </div>
+    </div>
+    
+    <p class="text-sm text-gray-600 mb-4">
+        Try entering the job details manually below, or try a different URL.
+    </p>
+
+    <form hx-post="/generate" hx-target="#result-container" hx-swap="innerHTML" class="space-y-6">
+        <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+                <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                <input 
+                    type="text" 
+                    name="company" 
+                    id="company"
+                    required
+                    placeholder="Acme Inc."
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                >
+            </div>
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role Title</label>
+                <input 
+                    type="text" 
+                    name="role" 
+                    id="role"
+                    required
+                    placeholder="Senior Engineer"
+                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                >
+            </div>
+        </div>
+
+        <div>
+            <label for="job_description" class="block text-sm font-medium text-gray-700 mb-1">Job Description</label>
+            <textarea 
+                name="job_description" 
+                id="job_description"
+                rows="12"
+                required
+                placeholder="Paste the full job description here..."
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm font-mono"
+            ></textarea>
+        </div>
+
+        <input type="hidden" name="url" value="">
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <a href="/" class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                Cancel
+            </a>
+            <button 
+                type="submit"
+                class="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 transition-colors"
+            >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                </svg>
+                Generate Application
+            </button>
+        </div>
+    </form>
+</div>

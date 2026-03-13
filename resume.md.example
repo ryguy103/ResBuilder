@@ -1,0 +1,80 @@
+# Jane Smith
+
+**Austin, TX** | (555) 123-4567 | jane.smith@example.com | [linkedin.com/in/janesmith](https://www.linkedin.com/in/janesmith/) | [janesmith.dev](https://janesmith.dev)
+
+---
+
+Full-stack engineer with 7+ years of experience building scalable web applications and leading cross-functional teams. Passionate about clean architecture, developer experience, and shipping products that users love.
+
+---
+
+## Professional Experience
+
+### Acme Corp — Austin, TX (Hybrid)
+
+#### Senior Software Engineer
+*Mar 2022 – Present*
+
+- Led migration of monolithic Rails app to microservices architecture, reducing deploy times from 45 min to 5 min
+- Designed and built real-time notification system handling 2M+ events/day using Kafka and WebSockets
+- Mentored 3 junior engineers through structured pairing and code review, all promoted within 12 months
+- Reduced P95 API latency by 60% by implementing Redis caching layer and query optimization
+- Drove adoption of TypeScript across frontend codebase, reducing production bugs by 35%
+
+### StartupXYZ — San Francisco, CA (Remote)
+
+#### Software Engineer II
+*Jun 2019 – Feb 2022*
+
+- Built customer-facing analytics dashboard from scratch using React, D3.js, and PostgreSQL
+- Implemented OAuth 2.0 / SAML SSO integration supporting 50+ enterprise customers
+- Created automated data pipeline processing 10GB+ daily using Airflow and Python
+- Contributed to open-source SDK used by 5,000+ developers
+
+#### Software Engineer I
+*Jan 2018 – Jun 2019*
+
+- Developed RESTful APIs serving 100K+ daily active users using Python/Flask
+- Built internal admin tool that reduced customer onboarding time from 2 days to 2 hours
+- Wrote comprehensive test suite achieving 92% code coverage across core services
+
+### TechConsulting Inc. — Portland, OR
+
+#### Junior Developer
+*Jun 2016 – Dec 2017*
+
+- Built responsive web applications for 8+ clients using React and Node.js
+- Implemented CI/CD pipelines using Jenkins and Docker, reducing release cycles from monthly to weekly
+- Created reusable component library adopted across 5 client projects
+
+---
+
+## Skills
+
+**Languages & Frameworks:** Python, TypeScript, JavaScript, React, Node.js, Flask, Django, Ruby on Rails, SQL, GraphQL
+
+**Infrastructure & Tools:** AWS (EC2, S3, Lambda, RDS), Docker, Kubernetes, Terraform, PostgreSQL, Redis, Kafka, GitHub Actions, Datadog
+
+**Practices:** Microservices Architecture, CI/CD Pipeline Design, API Design (REST, GraphQL), Database Optimization, System Design, Agile/Scrum
+
+---
+
+## Projects
+
+**DevDash** (Personal) — Open-source developer dashboard aggregating GitHub PRs, CI status, and deployment health. 1,200+ GitHub stars, featured in JavaScript Weekly. *React, TypeScript, WebSockets*
+
+**Customer Health Score System** (Work) — ML-powered churn prediction system. Identified 85% of at-risk accounts 30 days early, contributing to $2M ARR retention. *Python, scikit-learn, PostgreSQL, Looker*
+
+---
+
+## Education
+
+**B.S. Computer Science** — University of Texas at Austin (2012 – 2016)
+
+---
+
+## Awards
+
+- **Engineering Excellence Award** — Acme Corp, Q4 2023
+- **Hackathon Winner - Best Developer Tool** — Acme Corp, Sep 2022
+- **Top Contributor** — StartupXYZ, 2021
