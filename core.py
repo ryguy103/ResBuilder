@@ -26,10 +26,7 @@ try:
 except ImportError:
     Document = None
 
-try:
-    from anthropic import Anthropic
-except ImportError:
-    Anthropic = None
+import ai_client
 
 try:
     import requests
@@ -56,11 +53,8 @@ _copy_example_files()
 
 
 def get_api_key() -> str:
-    """Get Anthropic API key from environment"""
-    key = os.environ.get("ANTHROPIC_API_KEY")
-    if not key:
-        raise ValueError("ANTHROPIC_API_KEY environment variable not set")
-    return key
+    """Get the active provider's API key (delegates to ai_client)."""
+    return ai_client.get_api_key()
 
 
 def load_profile() -> dict:
@@ -87,6 +81,110 @@ def save_profile(profile: dict) -> None:
         yaml.dump(profile, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
 
+def parse_profile_with_ai(raw_content: str) -> dict:
+    """Use AI to parse pasted resume/career text into a structured profile dict.
+    Returns a profile suitable for save_profile(). Raises on parse or validation error.
+    """
+    prompt = f"""You are a resume parser. The user has pasted raw text about their career (resume, LinkedIn export, notes, etc.). Your job is to extract and organize it into a structured YAML profile.
+
+RULES:
+1. Output ONLY valid YAML. No markdown, no code fences, no explanation before or after.
+2. Preserve all jobs, education, skills, projects, and achievements the user mentioned. Do not omit or summarize bullets.
+3. If something is unclear or missing, use empty strings or empty lists. Always output the full structure below.
+4. For dates use the format the user provided (e.g. "Jan 2022 - Present", "2018 – 2020").
+5. Put each job in experience with company, location, and roles (each role has title, dates, highlights list).
+6. Skills go under skills.categories as a list of {{ name: "Category Name", items: ["item1", "item2"] }}.
+7. Education, projects, awards, key_metrics are lists of objects. Use the exact field names below.
+
+REQUIRED YAML STRUCTURE (output this structure with extracted data):
+
+personal:
+  name: ""
+  email: ""
+  phone: ""
+  location: ""
+  linkedin_url: ""
+  website: ""
+  summaries:
+    default: ""
+
+experience:
+  - company: ""
+    location: ""
+    roles:
+      - title: ""
+        dates: ""
+        highlights: []
+
+skills:
+  categories:
+    - name: ""
+      items: []
+
+education:
+  - degree: ""
+    institution: ""
+    years: ""
+
+projects:
+  - name: ""
+    type: work
+    description: ""
+    achievements: []
+    technologies: []
+
+awards:
+  - name: ""
+    date: ""
+    description: ""
+
+key_metrics:
+  - metric: ""
+    value: ""
+    context: ""
+
+RAW TEXT TO PARSE:
+---
+{raw_content[:25000]}
+---
+Output ONLY the YAML document, nothing else."""
+
+    response = ai_client.generate_text(prompt, max_tokens=4000)
+    text = response.strip()
+
+    # Strip markdown code block if present
+    if "```" in text:
+        start = text.find("```")
+        if start != -1:
+            start = text.find("\n", start) + 1
+        end = text.rfind("```")
+        if end > start:
+            text = text[start:end]
+    text = text.strip()
+
+    if not HAS_YAML:
+        raise ImportError("PyYAML not installed")
+
+    try:
+        profile = yaml.safe_load(text)
+    except yaml.YAMLError as e:
+        raise ValueError(f"AI returned invalid YAML: {e}") from e
+
+    if not isinstance(profile, dict):
+        raise ValueError("AI did not return a valid profile object")
+
+    # Ensure all top-level keys exist
+    for key in ("personal", "experience", "skills", "education", "projects", "awards", "key_metrics"):
+        if key not in profile:
+            profile[key] = {} if key == "personal" else {} if key == "skills" else []
+        if key == "skills" and isinstance(profile["skills"], dict) and "categories" not in profile["skills"]:
+            profile["skills"]["categories"] = []
+        if key == "personal" and isinstance(profile["personal"], dict) and "summaries" not in profile["personal"]:
+            profile["personal"]["summaries"] = {"default": ""}
+
+    return profile
+
+
 def get_profile_summary(profile: dict, summary_type: str = "default") -> str:
     """Get a specific summary variation from the profile"""
     summaries = profile.get("personal", {}).get("summaries", {})
@@ -105,7 +203,7 @@ def format_profile_for_ai(profile: dict) -> str:
     lines.append(f"CANDIDATE: {personal.get('name', 'Unknown')}")
     lines.append(f"Location: {personal.get('location', '')}")
     lines.append(f"Email: {personal.get('email', '')}")
-    lines.append(f"LinkedIn: {personal.get('linkedin', '')}")
+    lines.append(f"LinkedIn: {personal.get('linkedin_url', '') or personal.get('linkedin', '')}")
     lines.append("")
     
     # Summaries
@@ -366,25 +464,20 @@ def scrape_job_posting(url: str) -> Optional[dict]:
 
 
 def tailor_resume_with_ai(master_resume: str, job_description: str, company: str, role: str) -> str:
-    """Use Claude to tailor the resume"""
-    if not Anthropic:
-        raise ImportError("anthropic package not installed")
-    
-    client = Anthropic(api_key=get_api_key())
-    
+    """Use AI to tailor the resume for a specific job posting."""
     prompt = f"""You are tailoring a resume for a specific job application.
 
 CONTENT RULES:
 1. KEYWORD ALIGNMENT: Use terms from the JD where the candidate has genuine experience
 2. REORDER BULLETS: Put the most relevant accomplishments first  
-3. PRESERVE METRICS: Always keep $250K savings and 90 min to 3 min response time
+3. PRESERVE METRICS: Keep all quantified achievements from the original
 4. NO FABRICATION: Only use keywords where there's real experience
 5. ACTIVE VOICE: No "exposure to" or "familiar with"
 
 FORMATTING RULES (CRITICAL - follow exactly):
 1. Section headers MUST be ALL CAPS on their own line (e.g., SUMMARY, PROFESSIONAL EXPERIENCE, TECHNICAL SKILLS, PROJECTS, EDUCATION)
-2. Company names: Regular case, on their own line (e.g., "Zapier | Remote")
-3. Job titles: Regular case, on their own line (e.g., "Incident Manager - Engineering")
+2. Company names: Regular case, on their own line (e.g., "Acme Corp | Remote")
+3. Job titles: Regular case, on their own line (e.g., "Senior Engineer")
 4. Dates: On their own line in italics-style, e.g., "Feb 2025 - Present"
 5. Bullet points: Start with a hyphen and space "- "
 6. NO markdown symbols (no #, **, *, etc.)
@@ -430,22 +523,11 @@ EDUCATION
 
 Output ONLY the resume content, no explanations."""
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=2500,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    
-    return response.content[0].text.strip()
+    return ai_client.generate_text(prompt, max_tokens=2500)
 
 
 def generate_cover_letter_with_ai(master_resume: str, job_description: str, company: str, role: str) -> str:
-    """Use Claude to generate cover letter"""
-    if not Anthropic:
-        raise ImportError("anthropic package not installed")
-    
-    client = Anthropic(api_key=get_api_key())
-    
+    """Use AI to generate a cover letter for a specific job posting."""
     profile = load_profile()
     candidate_name = profile.get("personal", {}).get("name", "the candidate")
 
@@ -474,13 +556,7 @@ COVER LETTER REQUIREMENTS:
 
 Output ONLY the cover letter content, no explanations."""
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=1000,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    
-    return response.content[0].text.strip()
+    return ai_client.generate_text(prompt, max_tokens=1000)
 
 
 def generate_application(company: str, role: str, job_description: str, url: str = None) -> dict:

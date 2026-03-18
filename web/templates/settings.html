@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - ResBuilder{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-8">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
+        <p class="mt-1 text-sm text-gray-500">Manage your AI provider and API key.</p>
+    </div>
+
+    <!-- Current Provider -->
+    <div class="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
+        <h2 class="text-lg font-semibold text-gray-900">AI Provider</h2>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+            {% for pid, cfg in providers.items() %}
+            <button onclick="changeProvider('{{ pid }}')"
+                    id="settings-card-{{ pid }}"
+                    class="provider-card relative rounded-xl border-2 p-4 text-left transition-all focus:outline-none focus:ring-2 focus:ring-primary-500
+                           {{ 'border-primary-500 ring-2 ring-primary-200 bg-primary-50' if pid == active_provider else 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm' }}">
+                <h3 class="font-semibold text-sm {{ 'text-primary-700' if pid == active_provider else 'text-gray-900' }}">
+                    {{ cfg.name }}
+                </h3>
+                <div class="mt-2 flex flex-col gap-0.5">
+                    {% if cfg.sdk_installed %}
+                    <span class="inline-flex items-center gap-1 text-xs text-green-600">
+                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>
+                        SDK ready
+                    </span>
+                    {% else %}
+                    <span class="text-xs text-gray-400">SDK not installed</span>
+                    {% endif %}
+                    {% if cfg.has_key %}
+                    <span class="inline-flex items-center gap-1 text-xs text-green-600">
+                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>
+                        Key set
+                    </span>
+                    {% else %}
+                    <span class="text-xs text-gray-400">No key</span>
+                    {% endif %}
+                </div>
+                {% if pid == active_provider %}
+                <span class="absolute top-2 right-2 inline-flex items-center rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">Active</span>
+                {% endif %}
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- SDK install (hidden by default) -->
+        <div id="settings-sdk-section" class="hidden">
+            <div class="rounded-lg bg-yellow-50 border border-yellow-200 p-4">
+                <p class="text-sm text-yellow-800" id="settings-sdk-msg">SDK needs to be installed for this provider.</p>
+                <button onclick="settingsInstallSdk()" id="settings-install-btn"
+                        class="mt-3 rounded-lg bg-yellow-600 px-4 py-2 text-sm font-semibold text-white hover:bg-yellow-500 transition-colors">
+                    Install SDK
+                </button>
+                <span id="settings-install-status" class="ml-3 text-sm"></span>
+            </div>
+        </div>
+
+        <!-- API Key -->
+        <div>
+            <h3 class="text-sm font-semibold text-gray-900">API Key</h3>
+            <p id="settings-key-help" class="mt-1 text-xs text-gray-500"></p>
+            <div class="mt-2 flex gap-3">
+                <input type="password" id="settings-api-key"
+                       class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm px-4 py-2.5 border"
+                       placeholder="Enter new API key">
+                <button onclick="settingsSaveKey()" id="settings-save-btn"
+                        class="rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-500 transition-colors whitespace-nowrap">
+                    Save Key
+                </button>
+            </div>
+            <span id="settings-key-status" class="mt-2 block text-sm"></span>
+        </div>
+
+        <!-- Test Connection -->
+        <div class="pt-4 border-t border-gray-100">
+            <button onclick="settingsTestConnection()" id="settings-test-btn"
+                    class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 hover:bg-gray-50 transition-colors">
+                Test Connection
+            </button>
+            <span id="settings-test-status" class="ml-3 text-sm"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+const providers = {{ providers_json | safe }};
+let currentProvider = '{{ active_provider or "" }}';
+
+function updateKeyHelp(pid) {
+    const cfg = providers[pid];
+    if (!cfg) return;
+    document.getElementById('settings-key-help').innerHTML =
+        `<strong>${cfg.env_key}</strong> &mdash; get yours at <a href="${cfg.signup_url}" target="_blank" class="text-primary-600 underline">${cfg.signup_url}</a>`;
+    document.getElementById('settings-api-key').placeholder = cfg.has_key ? 'Key already set (enter new to change)' : 'Paste your API key';
+}
+
+function showSdkInstall(pid) {
+    const section = document.getElementById('settings-sdk-section');
+    const cfg = providers[pid];
+    if (!cfg.sdk_installed) {
+        section.classList.remove('hidden');
+        document.getElementById('settings-sdk-msg').textContent =
+            `The ${cfg.name} SDK (${cfg.sdk_package}) needs to be installed.`;
+    } else {
+        section.classList.add('hidden');
+    }
+}
+
+async function changeProvider(pid) {
+    currentProvider = pid;
+
+    document.querySelectorAll('.provider-card').forEach(c => {
+        c.classList.remove('border-primary-500', 'ring-2', 'ring-primary-200', 'bg-primary-50');
+        c.classList.add('border-gray-200', 'bg-white');
+        const badge = c.querySelector('.absolute');
+        if (badge) badge.remove();
+    });
+    const card = document.getElementById('settings-card-' + pid);
+    card.classList.remove('border-gray-200', 'bg-white');
+    card.classList.add('border-primary-500', 'ring-2', 'ring-primary-200', 'bg-primary-50');
+    const badge = document.createElement('span');
+    badge.className = 'absolute top-2 right-2 inline-flex items-center rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700';
+    badge.textContent = 'Active';
+    card.appendChild(badge);
+
+    updateKeyHelp(pid);
+    showSdkInstall(pid);
+
+    await fetch('/api/setup/set-provider', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({provider_id: pid})
+    });
+}
+
+async function settingsInstallSdk() {
+    const btn = document.getElementById('settings-install-btn');
+    const status = document.getElementById('settings-install-status');
+    btn.disabled = true;
+    btn.textContent = 'Installing...';
+    status.className = 'ml-3 text-sm text-gray-500';
+    status.textContent = 'Please wait...';
+
+    try {
+        const resp = await fetch('/api/setup/install-sdk', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({provider_id: currentProvider})
+        });
+        const data = await resp.json();
+        if (data.success) {
+            status.className = 'ml-3 text-sm text-green-600';
+            status.textContent = 'Installed!';
+            providers[currentProvider].sdk_installed = true;
+            setTimeout(() => document.getElementById('settings-sdk-section').classList.add('hidden'), 800);
+        } else {
+            status.className = 'ml-3 text-sm text-red-600';
+            status.textContent = data.output || 'Failed';
+            btn.disabled = false;
+            btn.textContent = 'Retry';
+        }
+    } catch (e) {
+        status.className = 'ml-3 text-sm text-red-600';
+        status.textContent = e.message;
+        btn.disabled = false;
+        btn.textContent = 'Retry';
+    }
+}
+
+async function settingsSaveKey() {
+    const btn = document.getElementById('settings-save-btn');
+    const status = document.getElementById('settings-key-status');
+    const key = document.getElementById('settings-api-key').value.trim();
+    if (!key) {
+        status.className = 'mt-2 block text-sm text-red-600';
+        status.textContent = 'Please enter a key.';
+        return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    status.className = 'mt-2 block text-sm text-gray-500';
+    status.textContent = 'Saving...';
+
+    try {
+        const resp = await fetch('/api/setup/save-key', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({provider_id: currentProvider, api_key: key})
+        });
+        const data = await resp.json();
+        if (data.success) {
+            status.className = 'mt-2 block text-sm text-green-600';
+            status.textContent = data.message;
+            providers[currentProvider].has_key = true;
+            document.getElementById('settings-api-key').value = '';
+            document.getElementById('settings-api-key').placeholder = 'Key already set (enter new to change)';
+        } else {
+            status.className = 'mt-2 block text-sm text-red-600';
+            status.textContent = data.message;
+        }
+    } catch (e) {
+        status.className = 'mt-2 block text-sm text-red-600';
+        status.textContent = e.message;
+    }
+    btn.disabled = false;
+    btn.textContent = 'Save Key';
+}
+
+async function settingsTestConnection() {
+    const btn = document.getElementById('settings-test-btn');
+    const status = document.getElementById('settings-test-status');
+    btn.disabled = true;
+    btn.textContent = 'Testing...';
+    status.className = 'ml-3 text-sm text-gray-500';
+    status.textContent = 'Connecting...';
+
+    try {
+        const resp = await fetch('/api/setup/test', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({provider_id: currentProvider})
+        });
+        const data = await resp.json();
+        if (data.success) {
+            status.className = 'ml-3 text-sm text-green-600';
+            status.textContent = data.message;
+        } else {
+            status.className = 'ml-3 text-sm text-red-600';
+            status.textContent = data.message;
+        }
+    } catch (e) {
+        status.className = 'ml-3 text-sm text-red-600';
+        status.textContent = e.message;
+    }
+    btn.disabled = false;
+    btn.textContent = 'Test Connection';
+}
+
+if (currentProvider) {
+    updateKeyHelp(currentProvider);
+    showSdkInstall(currentProvider);
+}
+</script>
+{% endblock %}

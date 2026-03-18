@@ -1,9 +1,10 @@
 # ResBuilder
 
-AI-powered job application tool that tailors resumes and generates cover letters for specific job postings using Claude AI.
+AI-powered job application tool that tailors resumes and generates cover letters for specific job postings. Supports multiple AI providers: **Anthropic (Claude)**, **OpenAI (GPT)**, and **Google (Gemini)**.
 
 ## Features
 
+- **Multi-Provider AI** — Choose Anthropic, OpenAI, or Google Gemini; SDKs are installed on-demand
 - **AI-Tailored Resumes** — Automatically customizes your resume for each job posting
 - **Cover Letter Generation** — Creates personalized cover letters that match the job requirements
 - **Job URL Scraping** — Paste a job posting URL and automatically extract the details
@@ -22,51 +23,41 @@ cd resbuilder
 make setup   # or: pip install -r requirements.txt
 ```
 
-### 2. Add your API key
-
-Create a `.env` file in the project root:
-
-```bash
-echo 'ANTHROPIC_API_KEY=your-key-here' > .env
-```
-
-Get your key at [console.anthropic.com](https://console.anthropic.com/).
-
-### 3. Set up your profile
-
-**Option A — Web UI (recommended):**
+### 2. Launch and configure
 
 ```bash
 make web
 ```
 
-Open http://localhost:8000/profile and fill in your information through the guided setup wizard. The wizard walks you through personal info, skills, work experience, education, projects, and awards.
+Open http://localhost:8000. On first launch you'll be guided through a setup wizard where you:
 
-**Option B — Edit YAML directly:**
+1. **Pick an AI provider** (Anthropic, OpenAI, or Google Gemini)
+2. **Install the SDK** (one click, no terminal needed)
+3. **Paste your API key** (with a link to get one)
+4. **Set up your profile** through the guided wizard
 
-The first time you run the app, `profile.yaml.example` is automatically copied to `profile.yaml`. Open it and replace the placeholder data with your own:
+That's it — no manual `.env` editing required.
 
-```bash
-# Or copy manually if you want to start before running the app
-cp profile.yaml.example profile.yaml
-```
+### 3. Start applying
 
-> **Tip:** The more detail you include in your profile, the better the AI can tailor your applications. Add every job, skill, project, and achievement you can think of — the AI will intelligently select what's most relevant for each application.
-
-### 4. Start applying
-
-```bash
-make web
-```
-
-Open http://localhost:8000, click **New Application**, and either paste a job posting URL or enter the details manually. The AI generates a tailored resume and cover letter in seconds.
+Click **New Application**, paste a job posting URL or enter details manually, and the AI generates a tailored resume and cover letter in seconds.
 
 ## One-Click Install (Mac)
 
 1. Download or clone this repository
 2. Double-click `install.command` in Finder
-3. Follow the prompts to enter your API key
+3. Follow the prompts
 4. Double-click `ResBuilder.command` to launch
+
+## AI Providers
+
+| Provider | Model | Get a Key |
+|----------|-------|-----------|
+| Anthropic (Claude) | claude-sonnet-4-20250514 | [console.anthropic.com](https://console.anthropic.com/) |
+| OpenAI (GPT) | gpt-4o | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
+| Google (Gemini) | gemini-2.0-flash | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+
+You can switch providers at any time from the **Settings** page. SDKs are only installed when you select a provider, keeping the base install lightweight.
 
 ## Usage
 
@@ -122,11 +113,12 @@ resbuilder/
 │   ├── templates/              # Jinja2 HTML templates
 │   └── static/                 # CSS and assets
 ├── companies/                  # Generated applications (by company)
+├── ai_client.py                # Multi-provider AI abstraction
 ├── core.py                     # Shared business logic
 ├── prepare.py                  # CLI entry point
 ├── profile.yaml.example        # Template profile (copy to profile.yaml)
 ├── resume.md.example           # Template resume (copy to resume.md)
-├── requirements.txt            # Python dependencies
+├── requirements.txt            # Python dependencies (no AI SDKs)
 ├── Makefile                    # Command shortcuts
 ├── install.command             # One-click Mac installer
 └── build_app.py                # Desktop app builder
@@ -145,19 +137,22 @@ resbuilder/
 
 ## Configuration
 
-### Environment Variables
+### Environment Variables (optional)
 
-Create a `.env` file in the project root (never committed to git):
+The recommended way to configure ResBuilder is through the web UI setup wizard. If you prefer manual configuration, create a `.env` file:
 
 ```
+AI_PROVIDER=anthropic
 ANTHROPIC_API_KEY=your-key-here
 ```
 
-Or export directly:
+Supported providers and their environment variable names:
 
-```bash
-export ANTHROPIC_API_KEY='your-key-here'
-```
+| Provider | Variable |
+|----------|----------|
+| Anthropic | `ANTHROPIC_API_KEY` |
+| OpenAI | `OPENAI_API_KEY` |
+| Google | `GOOGLE_API_KEY` |
 
 ### Profile Configuration
 
@@ -207,19 +202,20 @@ awards:
 ## Requirements
 
 - Python 3.8+
-- Anthropic API key
+- An API key from one of: Anthropic, OpenAI, or Google
 
 ### Dependencies
 
 Installed automatically via `make setup`:
 
-- `anthropic` — Claude AI API
 - `fastapi` + `uvicorn` — Web server
 - `python-docx` — Word document generation
 - `python-dotenv` — Environment variable loading from `.env`
 - `requests` + `beautifulsoup4` — Job posting scraping
 - `pyyaml` — Profile configuration
 - `jinja2` — HTML templating
+
+AI provider SDKs (`anthropic`, `openai`, `google-generativeai`) are installed automatically when you select a provider in the setup wizard.
 
 ## Build Standalone App
 
@@ -231,16 +227,18 @@ The app will be in `dist/ResBuilder.app` (Mac) — double-click to run.
 
 ## Troubleshooting
 
-### "API Key Required" error
+### "No AI provider configured" on dashboard
 
-Create a `.env` file in the project root:
-```
-ANTHROPIC_API_KEY=your-key-here
-```
+Visit http://localhost:8000/setup to choose a provider and enter your API key.
 
-Or export it:
+### SDK installation fails
+
+If the in-app install fails, you can install manually:
+
 ```bash
-export ANTHROPIC_API_KEY='your-key-here'
+pip install anthropic    # for Anthropic
+pip install openai       # for OpenAI
+pip install google-generativeai  # for Google Gemini
 ```
 
 ### Job URL scraping fails
