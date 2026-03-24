@@ -225,6 +225,10 @@ make build
 
 The app will be in `dist/ResBuilder.app` (Mac) — double-click to run.
 
+**macOS note:** The desktop launcher does **not** use Tkinter (PyInstaller’s windowed build crashes when Tcl/Tk initializes). Your browser opens automatically; configure your AI provider at `/setup` in the app.
+
+**Where data is stored (`.app` build):** Profile, `.env`, and `companies/` live under **Library/Application Support/ResBuilder** in your home folder (not inside the `.app` bundle).
+
 ## Troubleshooting
 
 ### "No AI provider configured" on dashboard
