@@ -42,21 +42,23 @@ def build_app():
     main_script = base_dir / "launcher.py"
     icon_path = base_dir / "assets" / "icon.icns"
     
-    # Create launcher if it doesn't exist
     if not main_script.exists():
-        print("Creating launcher script...")
-        create_launcher()
+        print("ERROR: launcher.py not found in project root. Cannot build.")
+        sys.exit(1)
     
-    # PyInstaller arguments
+    # PyInstaller arguments (--windowed + Tkinter crashes on macOS; launcher has no Tk)
     args = [
         "pyinstaller",
         "--name=ResBuilder",
         "--onefile",
         "--windowed",
+        "--exclude-module=tkinter",
+        "--exclude-module=_tkinter",
+        "--exclude-module=matplotlib",
         "--add-data=web/templates:web/templates",
         "--add-data=web/static:web/static",
-        "--add-data=resume.md:.",
-        "--add-data=resume.txt:.",
+        "--add-data=profile.yaml.example:.",
+        "--add-data=resume.md.example:.",
         "--hidden-import=uvicorn.logging",
         "--hidden-import=uvicorn.protocols.http",
         "--hidden-import=uvicorn.protocols.http.h11_impl",
@@ -66,9 +68,11 @@ def build_app():
         "--hidden-import=fastapi",
         "--hidden-import=starlette",
         "--hidden-import=jinja2",
-        "--hidden-import=anthropic",
         "--hidden-import=docx",
         "--hidden-import=yaml",
+        "--hidden-import=anthropic",
+        "--hidden-import=openai",
+        "--hidden-import=google.generativeai",
         "--hidden-import=requests",
         "--hidden-import=bs4",
         "--clean",
@@ -105,128 +109,6 @@ def build_app():
     else:
         print("\nYour app is at: dist/ResBuilder.exe")
         print("\nUsers can just double-click to run!")
-
-
-def create_launcher():
-    """Create the launcher script that PyInstaller will bundle"""
-    
-    launcher_code = '''\
-#!/usr/bin/env python3
-"""
-ResBuilder Desktop Application Launcher
-Opens the web UI in the default browser and manages the server.
-"""
-
-import os
-import sys
-import time
-import threading
-import webbrowser
-from pathlib import Path
-
-def get_resource_path(relative_path):
-    """Get path to resource, works for dev and PyInstaller"""
-    if hasattr(sys, '_MEIPASS'):
-        return Path(sys._MEIPASS) / relative_path
-    return Path(__file__).parent / relative_path
-
-def setup_environment():
-    """Set up paths for bundled resources"""
-    if hasattr(sys, '_MEIPASS'):
-        # Running as bundled app
-        bundle_dir = Path(sys._MEIPASS)
-        os.chdir(bundle_dir)
-        
-        # Add bundle dir to path
-        sys.path.insert(0, str(bundle_dir))
-
-def check_api_key():
-    """Check if API key is set, prompt if not"""
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        return True
-    
-    # Try to load from config file
-    config_path = Path.home() / ".resbuilder" / "config"
-    if config_path.exists():
-        key = config_path.read_text().strip()
-        if key:
-            os.environ["ANTHROPIC_API_KEY"] = key
-            return True
-    
-    return False
-
-def show_api_key_dialog():
-    """Show a dialog to enter API key (cross-platform)"""
-    import tkinter as tk
-    from tkinter import simpledialog, messagebox
-    
-    root = tk.Tk()
-    root.withdraw()
-    
-    key = simpledialog.askstring(
-        "ResBuilder Setup",
-        "Enter your Anthropic API Key:\\n\\n"
-        "(Get one at console.anthropic.com)",
-        show='*'
-    )
-    
-    if key:
-        # Save for future use
-        config_dir = Path.home() / ".resbuilder"
-        config_dir.mkdir(exist_ok=True)
-        (config_dir / "config").write_text(key)
-        os.environ["ANTHROPIC_API_KEY"] = key
-        
-        messagebox.showinfo(
-            "Success",
-            "API key saved! ResBuilder will now open in your browser."
-        )
-        return True
-    else:
-        messagebox.showwarning(
-            "API Key Required",
-            "You can still use ResBuilder, but AI features won't work.\\n\\n"
-            "Set your API key later in the Profile page."
-        )
-        return False
-    
-    root.destroy()
-
-def open_browser():
-    """Open browser after server starts"""
-    time.sleep(1.5)
-    webbrowser.open("http://localhost:8000")
-
-def run_server():
-    """Run the FastAPI server"""
-    import uvicorn
-    from web.app import app
-    
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="warning")
-
-def main():
-    setup_environment()
-    
-    if not check_api_key():
-        show_api_key_dialog()
-    
-    # Open browser in background thread
-    browser_thread = threading.Thread(target=open_browser, daemon=True)
-    browser_thread.start()
-    
-    print("Starting ResBuilder...")
-    print("Opening http://localhost:8000 in your browser")
-    print("Close this window to stop the server")
-    
-    run_server()
-
-if __name__ == "__main__":
-    main()
-'''
-    
-    launcher_path = Path(__file__).parent / "launcher.py"
-    launcher_path.write_text(launcher_code)
-    print(f"Created: {launcher_path}")
 
 
 if __name__ == "__main__":

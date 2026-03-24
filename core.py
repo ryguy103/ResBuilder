@@ -12,7 +12,20 @@ from typing import Optional, Generator
 
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).parent / ".env")
+
+def _resolve_base_path() -> Path:
+    """Project root for data files. Frozen apps set RESBUILDER_DATA_DIR to a writable folder."""
+    env = os.environ.get("RESBUILDER_DATA_DIR", "").strip()
+    if env:
+        p = Path(env).expanduser().resolve()
+        p.mkdir(parents=True, exist_ok=True)
+        return p
+    return Path(__file__).parent.resolve()
+
+
+# Base path for profile, .env, companies/, etc.
+BASE_PATH = _resolve_base_path()
+load_dotenv(BASE_PATH / ".env")
 
 try:
     import yaml
@@ -36,16 +49,21 @@ except ImportError:
     HAS_SCRAPING = False
 
 
-# Base path for the project (where resume.md lives)
-BASE_PATH = Path(__file__).parent
+def _bundle_examples_root() -> Path:
+    """Where .example templates live (bundle dir when frozen, else BASE_PATH)."""
+    br = os.environ.get("RESBUILDER_BUNDLE_RESOURCES", "").strip()
+    if br:
+        return Path(br)
+    return BASE_PATH
 
 
 def _copy_example_files():
     """On first run, copy .example files so new users have a starting point."""
     import shutil
+    root = _bundle_examples_root()
     for name in ("profile.yaml", "resume.md"):
         target = BASE_PATH / name
-        source = BASE_PATH / f"{name}.example"
+        source = root / f"{name}.example"
         if not target.exists() and source.exists():
             shutil.copy2(source, target)
 

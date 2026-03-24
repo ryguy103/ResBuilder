@@ -13,8 +13,18 @@ from typing import Optional
 
 from dotenv import load_dotenv
 
-_ENV_PATH = Path(__file__).parent / ".env"
-load_dotenv(_ENV_PATH)
+
+def _env_file() -> Path:
+    """Same rules as core.BASE_PATH: writable data dir when RESBUILDER_DATA_DIR is set."""
+    data = os.environ.get("RESBUILDER_DATA_DIR", "").strip()
+    if data:
+        p = Path(data).expanduser().resolve()
+        p.mkdir(parents=True, exist_ok=True)
+        return p / ".env"
+    return Path(__file__).parent.resolve() / ".env"
+
+
+load_dotenv(_env_file())
 
 
 PROVIDERS = {
@@ -55,8 +65,9 @@ PROVIDERS = {
 def read_env() -> dict:
     """Read the .env file into a dictionary, ignoring comments and blanks."""
     env = {}
-    if _ENV_PATH.exists():
-        for line in _ENV_PATH.read_text().splitlines():
+    path = _env_file()
+    if path.exists():
+        for line in path.read_text().splitlines():
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
@@ -68,10 +79,11 @@ def read_env() -> dict:
 
 def write_env(key: str, value: str) -> None:
     """Set a single key in the .env file, preserving all other content."""
+    path = _env_file()
     lines: list[str] = []
     found = False
-    if _ENV_PATH.exists():
-        for line in _ENV_PATH.read_text().splitlines():
+    if path.exists():
+        for line in path.read_text().splitlines():
             stripped = line.strip()
             if stripped and not stripped.startswith("#") and "=" in stripped:
                 k, _, _ = stripped.partition("=")
@@ -82,7 +94,7 @@ def write_env(key: str, value: str) -> None:
             lines.append(line)
     if not found:
         lines.append(f"{key}={value}")
-    _ENV_PATH.write_text("\n".join(lines) + "\n")
+    path.write_text("\n".join(lines) + "\n")
     os.environ[key] = value
 
 
