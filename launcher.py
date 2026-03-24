@@ -20,6 +20,24 @@ def _is_frozen() -> bool:
     return bool(getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"))
 
 
+def _frozen_data_root() -> Path:
+    """Where profile, .env, and companies/ live when running the .app build."""
+    override = Path.home() / ".resbuilder" / "data_dir"
+    if override.exists():
+        raw = override.read_text().strip()
+        line = raw.splitlines()[0].strip() if raw else ""
+        if line:
+            custom = Path(line).expanduser().resolve()
+            if custom.is_dir():
+                return custom
+    system = platform.system()
+    if system == "Darwin":
+        return Path.home() / "Library" / "Application Support" / "ResBuilder"
+    if system == "Windows":
+        return Path(os.environ.get("APPDATA", str(Path.home()))) / "ResBuilder"
+    return Path.home() / ".local" / "share" / "ResBuilder"
+
+
 def setup_environment():
     """Paths for PyInstaller bundle: writable data dir + bundle resource root."""
     if not _is_frozen():
@@ -29,14 +47,7 @@ def setup_environment():
     sys.path.insert(0, str(bundle_dir))
     os.environ["RESBUILDER_BUNDLE_RESOURCES"] = str(bundle_dir)
 
-    system = platform.system()
-    if system == "Darwin":
-        data_root = Path.home() / "Library" / "Application Support" / "ResBuilder"
-    elif system == "Windows":
-        data_root = Path(os.environ.get("APPDATA", str(Path.home()))) / "ResBuilder"
-    else:
-        data_root = Path.home() / ".local" / "share" / "ResBuilder"
-
+    data_root = _frozen_data_root()
     data_root.mkdir(parents=True, exist_ok=True)
     os.environ["RESBUILDER_DATA_DIR"] = str(data_root.resolve())
     os.chdir(data_root)

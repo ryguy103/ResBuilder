@@ -227,7 +227,13 @@ The app will be in `dist/ResBuilder.app` (Mac) — double-click to run.
 
 **macOS note:** The desktop launcher does **not** use Tkinter (PyInstaller’s windowed build crashes when Tcl/Tk initializes). Your browser opens automatically; configure your AI provider at `/setup` in the app.
 
-**Where data is stored (`.app` build):** Profile, `.env`, and `companies/` live under **Library/Application Support/ResBuilder** in your home folder (not inside the `.app` bundle).
+**Where data is stored (`.app` build):** Profile, `.env`, and `companies/` live under **`~/Library/Application Support/ResBuilder`** on Mac (not inside the `.app` bundle). Running **`make web`** from a git clone uses the **project folder** instead, so your **`companies/`** list can look empty in the `.app` until you either:
+
+- **Copy** your existing folder:  
+  `cp -R /path/to/resbuilder/companies ~/Library/Application\ Support/ResBuilder/`
+- **Or** point the `.app` at your clone: create **`~/.resbuilder/data_dir`** containing a **single line** with the **absolute path** to your resbuilder project (the directory that contains `companies/`). Rebuild the app after changing `launcher.py`, or edit the same logic if you ship updates.
+
+Without `data_dir`, the desktop app and terminal workflow use **two different data roots** by design.
 
 ## Troubleshooting
 
