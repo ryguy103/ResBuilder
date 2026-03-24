@@ -4,19 +4,20 @@ web/app.py - FastAPI web interface for resbuilder
 
 import os
 import sys
+import json
 from pathlib import Path
 
-# Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from fastapi import FastAPI, Request, Form, BackgroundTasks, HTTPException
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
 import asyncio
 
+import ai_client
 from core import (
     list_applications,
     scrape_job_posting,
@@ -39,8 +40,19 @@ static_dir = Path(__file__).parent / "static"
 templates = Jinja2Templates(directory=str(templates_dir))
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
-# Store for generation progress
 generation_status = {}
+
+
+def _provider_context() -> dict:
+    """Build a dict of provider metadata for templates."""
+    ctx = {}
+    for pid, cfg in ai_client.PROVIDERS.items():
+        ctx[pid] = {
+            **cfg,
+            "sdk_installed": ai_client.is_sdk_installed(pid),
+            "has_key": bool(os.environ.get(cfg["env_key"])),
+        }
+    return ctx
 
 
 class ScrapeRequest(BaseModel):
@@ -56,16 +68,19 @@ class GenerateRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
-    """Dashboard showing all past applications"""
+    """Dashboard showing all past applications. Redirects to /setup on first run."""
+    if not ai_client.is_provider_ready():
+        return RedirectResponse(url="/setup", status_code=303)
+
     applications = list_applications()
-    
-    # Check for API key
-    has_api_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
-    
+    provider = ai_client.get_active_provider()
+    provider_name = ai_client.PROVIDERS[provider]["name"] if provider else None
+
     return templates.TemplateResponse("index.html", {
         "request": request,
         "applications": applications,
-        "has_api_key": has_api_key,
+        "has_api_key": True,
+        "provider_name": provider_name,
         "has_scraping": HAS_SCRAPING,
     })
 
@@ -73,11 +88,12 @@ async def dashboard(request: Request):
 @app.get("/new", response_class=HTMLResponse)
 async def new_application(request: Request):
     """New application form"""
-    has_api_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
-    
+    if not ai_client.is_provider_ready():
+        return RedirectResponse(url="/setup", status_code=303)
+
     return templates.TemplateResponse("new.html", {
         "request": request,
-        "has_api_key": has_api_key,
+        "has_api_key": True,
         "has_scraping": HAS_SCRAPING,
     })
 
@@ -159,11 +175,10 @@ async def generate(
             "error": "Company, role, and job description are required"
         })
     
-    # Check API key
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not ai_client.is_provider_ready():
         return templates.TemplateResponse("partials/generate_error.html", {
             "request": request,
-            "error": "ANTHROPIC_API_KEY not set. Please set it in your environment."
+            "error": "No AI provider configured. Visit /setup to connect one."
         })
     
     # Generate a task ID
@@ -306,27 +321,70 @@ async def api_list_applications():
 
 @app.get("/profile", response_class=HTMLResponse)
 async def view_profile(request: Request):
-    """View and edit the master professional profile"""
+    """View and edit the master professional profile. New users see the paste-to-import form first."""
     profile = load_profile()
-    
-    # If no profile exists, show setup wizard
+
     if not profile:
-        return templates.TemplateResponse("profile_setup.html", {
-            "request": request
+        if not ai_client.is_provider_ready():
+            return RedirectResponse(url="/setup", status_code=303)
+        return templates.TemplateResponse("profile_import.html", {
+            "request": request,
         })
-    
-    # Read raw YAML for editing
+
     profile_path = BASE_PATH / "profile.yaml"
-    raw_yaml = ""
-    if profile_path.exists():
-        raw_yaml = profile_path.read_text()
-    
+    raw_yaml = profile_path.read_text() if profile_path.exists() else ""
+
     return templates.TemplateResponse("profile.html", {
         "request": request,
         "profile": profile,
         "raw_yaml": raw_yaml,
-        "has_profile": bool(profile)
+        "has_profile": True,
     })
+
+
+@app.get("/profile/setup-form", response_class=HTMLResponse)
+async def profile_setup_form(request: Request):
+    """Show the step-by-step profile wizard (alternative to paste import)."""
+    return templates.TemplateResponse("profile_setup.html", {
+        "request": request,
+    })
+
+
+@app.post("/profile/import", response_class=HTMLResponse)
+async def profile_import(request: Request):
+    """Parse pasted content with AI and save as profile, then redirect to profile editor."""
+    from core import parse_profile_with_ai, save_profile
+
+    form = await request.form()
+    raw_content = (form.get("raw_content") or "").strip()
+
+    if not raw_content:
+        return templates.TemplateResponse("profile_import.html", {
+            "request": request,
+            "error": "Please paste some content before organizing.",
+        })
+
+    if not ai_client.is_provider_ready():
+        return templates.TemplateResponse("profile_import.html", {
+            "request": request,
+            "error": "AI provider not configured. Visit Settings to add an API key.",
+        })
+
+    try:
+        loop = asyncio.get_event_loop()
+        profile = await loop.run_in_executor(None, parse_profile_with_ai, raw_content)
+        await loop.run_in_executor(None, save_profile, profile)
+        return RedirectResponse(url="/profile", status_code=303)
+    except ValueError as e:
+        return templates.TemplateResponse("profile_import.html", {
+            "request": request,
+            "error": str(e),
+        })
+    except Exception as e:
+        return templates.TemplateResponse("profile_import.html", {
+            "request": request,
+            "error": f"Something went wrong: {e}",
+        })
 
 
 @app.post("/profile/setup", response_class=HTMLResponse)
@@ -654,6 +712,94 @@ async def save_profile_handler(request: Request):
 async def api_get_profile():
     """API endpoint to get profile as JSON"""
     return load_profile()
+
+
+# ---------------------------------------------------------------------------
+# Setup & Settings
+# ---------------------------------------------------------------------------
+
+@app.get("/setup", response_class=HTMLResponse)
+async def setup_page(request: Request):
+    """First-run onboarding: pick provider, install SDK, enter key."""
+    providers = _provider_context()
+    return templates.TemplateResponse("setup.html", {
+        "request": request,
+        "providers": providers,
+        "providers_json": json.dumps(providers),
+    })
+
+
+@app.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request):
+    """Settings page for managing AI provider and API key."""
+    providers = _provider_context()
+    active = ai_client.get_active_provider()
+    return templates.TemplateResponse("settings.html", {
+        "request": request,
+        "providers": providers,
+        "providers_json": json.dumps(providers),
+        "active_provider": active,
+    })
+
+
+@app.post("/api/setup/install-sdk")
+async def api_install_sdk(request: Request):
+    """Install the SDK for a given provider."""
+    body = await request.json()
+    pid = body.get("provider_id")
+    if pid not in ai_client.PROVIDERS:
+        return JSONResponse({"success": False, "output": "Unknown provider"})
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, ai_client.install_sdk, pid)
+    return JSONResponse(result)
+
+
+@app.post("/api/setup/save-key")
+async def api_save_key(request: Request):
+    """Save an API key and optionally test the connection."""
+    body = await request.json()
+    pid = body.get("provider_id")
+    key = body.get("api_key")
+
+    if pid not in ai_client.PROVIDERS:
+        return JSONResponse({"success": False, "message": "Unknown provider"})
+
+    cfg = ai_client.PROVIDERS[pid]
+
+    ai_client.set_provider(pid)
+    if key:
+        ai_client.write_env(cfg["env_key"], key)
+
+    if not ai_client.is_sdk_installed(pid):
+        return JSONResponse({
+            "success": False,
+            "message": f"SDK not installed for {cfg['name']}. Install it first.",
+        })
+
+    loop = asyncio.get_event_loop()
+    test = await loop.run_in_executor(None, ai_client.test_connection, pid)
+    return JSONResponse(test)
+
+
+@app.post("/api/setup/set-provider")
+async def api_set_provider(request: Request):
+    """Switch the active provider (no key validation)."""
+    body = await request.json()
+    pid = body.get("provider_id")
+    if pid not in ai_client.PROVIDERS:
+        return JSONResponse({"success": False, "message": "Unknown provider"})
+    ai_client.set_provider(pid)
+    return JSONResponse({"success": True})
+
+
+@app.post("/api/setup/test")
+async def api_test_connection(request: Request):
+    """Test the connection for a given provider."""
+    body = await request.json()
+    pid = body.get("provider_id")
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, ai_client.test_connection, pid)
+    return JSONResponse(result)
 
 
 if __name__ == "__main__":

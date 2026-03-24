@@ -24,11 +24,7 @@ except ImportError:
     print("Missing dependency. Run: pip install python-docx")
     sys.exit(1)
 
-try:
-    from anthropic import Anthropic
-except ImportError:
-    print("Missing dependency. Run: pip install anthropic")
-    sys.exit(1)
+import ai_client
 
 try:
     import requests
@@ -150,14 +146,13 @@ def scrape_job_posting(url: str) -> dict:
 
 
 def get_api_key():
-    """Get Anthropic API key from environment"""
-    key = os.environ.get("ANTHROPIC_API_KEY")
-    if not key:
-        print("Error: ANTHROPIC_API_KEY environment variable not set")
-        print("Get your key at: https://console.anthropic.com/")
-        print("Then run: export ANTHROPIC_API_KEY='your-key-here'")
+    """Get the active provider's API key (delegates to ai_client)."""
+    try:
+        return ai_client.get_api_key()
+    except ValueError as e:
+        print(f"Error: {e}")
+        print("Run the web UI (make web) and visit /setup to configure your AI provider.")
         sys.exit(1)
-    return key
 
 
 def load_profile():
@@ -375,10 +370,8 @@ def answer_questions_with_ai(questions: list, master_resume: str, job_descriptio
     if not questions:
         return []
     
-    client = Anthropic(api_key=get_api_key())
     answers = []
     
-    # Build base context dynamically from profile
     base_context = f"""CANDIDATE: {get_candidate_name()}
 COMPANY: {company}
 ROLE: {role}
@@ -397,7 +390,6 @@ KEY COMPANY CONTEXT FROM JD:
         print(f"  {question}")
         print(f"{'='*50}")
         
-        # Step 1: Check if we need more info (lightweight call)
         check_prompt = f"""{base_context}
 
 QUESTION: {question}
@@ -408,22 +400,14 @@ Can you write a strong, specific answer using only the context above?
 
 Only ask if the question requires personal insight not in the resume (motivations, specific stories, future goals)."""
 
-        response = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=400,
-            messages=[{"role": "user", "content": check_prompt}]
-        )
+        result = ai_client.generate_text(check_prompt, max_tokens=400)
         
-        result = response.content[0].text.strip()
-        
-        # Step 2: Handle based on response
         if result.startswith("ASK:") and interactive:
             clarifying_question = result.replace("ASK:", "").strip()
             print(f"\n  → Need your input: {clarifying_question}")
             user_input = input("\n  Your answer: ").strip()
             
             if user_input:
-                # Generate answer with user's input
                 answer_prompt = f"""{base_context}
 
 QUESTION: {question}
@@ -431,21 +415,14 @@ CANDIDATE'S INPUT: {user_input}
 
 Write a compelling 2-4 sentence answer in first person. Incorporate the candidate's input naturally. Be authentic, not generic."""
 
-                response = client.messages.create(
-                    model="claude-sonnet-4-20250514",
-                    max_tokens=300,
-                    messages=[{"role": "user", "content": answer_prompt}]
-                )
-                answer = response.content[0].text.strip()
+                answer = ai_client.generate_text(answer_prompt, max_tokens=300)
             else:
-                # User skipped - generate best effort
-                answer = result.replace("ASK:", "").strip() if len(result) > 60 else f"[Needs personal input - skipped]"
+                answer = result.replace("ASK:", "").strip() if len(result) > 60 else "[Needs personal input - skipped]"
         
         elif result.startswith("ANSWER:"):
             answer = result.replace("ANSWER:", "").strip()
         
         else:
-            # Use response as-is if it looks like an answer
             answer = result
         
         answers.append({"question": question, "answer": answer})
@@ -456,15 +433,13 @@ Write a compelling 2-4 sentence answer in first person. Incorporate the candidat
 
 
 def tailor_resume_with_ai(master_resume: str, job_description: str, company: str, role: str) -> str:
-    """Use Claude to tailor the resume - focused single task"""
-    client = Anthropic(api_key=get_api_key())
-    
+    """Use AI to tailor the resume for a specific job posting."""
     prompt = f"""You are tailoring a resume for a specific job application.
 
 RULES:
 1. KEYWORD ALIGNMENT: Use terms from the JD where the candidate has genuine experience
 2. REORDER BULLETS: Put the most relevant accomplishments first  
-3. PRESERVE METRICS: Always keep $250K savings and 90 min to 3 min response time
+3. PRESERVE METRICS: Keep all quantified achievements from the original
 4. NO FABRICATION: Only use keywords where there's real experience
 5. ACTIVE VOICE: No "exposure to" or "familiar with"
 6. Output plain text only, use hyphens (-) for bullet points
@@ -488,19 +463,11 @@ Output the tailored resume in this order:
 
 Output ONLY the resume content, no explanations or markdown."""
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=2500,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    
-    return response.content[0].text.strip()
+    return ai_client.generate_text(prompt, max_tokens=2500)
 
 
 def generate_cover_letter_with_ai(master_resume: str, job_description: str, company: str, role: str) -> str:
-    """Use Claude to generate cover letter - focused single task"""
-    client = Anthropic(api_key=get_api_key())
-    
+    """Use AI to generate a cover letter for a specific job posting."""
     prompt = f"""You are writing a cover letter for a job application.
 
 CONTEXT:
@@ -526,13 +493,7 @@ COVER LETTER REQUIREMENTS:
 
 Output ONLY the cover letter content, no explanations."""
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=1000,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    
-    return response.content[0].text.strip()
+    return ai_client.generate_text(prompt, max_tokens=1000)
 
 
 def tailor_with_ai(master_resume: str, job_description: str, company: str, role: str) -> dict:
